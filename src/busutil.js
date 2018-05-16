@@ -6,7 +6,7 @@ const BASE_10 = 10;
  **/
 class BusUtil {
   // magic read method that take in an array of address/lengh pairs
-  static readblocks(bus, blocks) {
+  static readblock(bus, blocks) {
     // normalize block from shorthand (aka [[37, 1], [37], 37] are all the same)
     const blk = blocks.map(item => {
       if(Array.isArray(item)) {

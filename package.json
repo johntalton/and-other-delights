@@ -1,0 +1,25 @@
+{
+  "name": "and-other-delights",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/aod.js",
+  "scripts": {
+    "lint": "./node_modules/.bin/eslint .",
+    "ncu": "ncu --timeout 5000 --loglevel minimal --newest"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-google": "^0.9.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/johntalton/and-other-delights.git"
+  },
+  "author": "johntalton@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/johntalton/and-other-delights/issues"
+  },
+  "homepage": "https://github.com/johntalton/and-other-delights#readme"
+}

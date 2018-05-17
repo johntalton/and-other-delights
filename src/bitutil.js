@@ -31,6 +31,7 @@ class BitUtil {
   }
 
   // position if from left->right with zero index
+  static mapbits(bits, position, length) { return BitUtil._readBits(bits, position, length); }
   static _readBits(bits, position, length) {
     const shift = position - length + 1;
     const mask = Math.pow(2, length) - 1;

@@ -4,8 +4,7 @@
   "description": "",
   "main": "src/aod.js",
   "scripts": {
-    "lint": "./node_modules/.bin/eslint .",
-    "ncu": "ncu --timeout 5000 --loglevel minimal --newest"
+    "lint": "./node_modules/.bin/eslint ."
   },
   "dependencies": {},
   "devDependencies": {

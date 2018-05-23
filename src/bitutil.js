@@ -1,6 +1,6 @@
 
-const TRUE_8_BITMAP = [7, 6, 5, 4, 3, 2, 1, 0];
-const REVERSE_TRUE_8_BITMAP = [0, 1, 2, 3, 4, 5, 6, 7];
+const TRUE_8_PACKMAP = [7, 6, 5, 4, 3, 2, 1, 0];
+const REVERSE_TRUE_8_PACKMAP = [0, 1, 2, 3, 4, 5, 6, 7];
 
 /**
  *
@@ -78,8 +78,8 @@ class BitUtil {
 
 }
 
-BitUtil.TRUE_8_BITMAP = TRUE_8_BITMAP;
-BitUtil.REVERSE_TRUE_8_BITMAP = REVERSE_TRUE_8_BITMAP;
+BitUtil.TRUE_8_PACKMAP = TRUE_8_PACKMAP;
+BitUtil.REVERSE_TRUE_8_PACKMAP = REVERSE_TRUE_8_PACKMAP;
 
 module.exports = { BitUtil };
 

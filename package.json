@@ -1,5 +1,5 @@
 {
-  "name": "and-other-delights",
+  "name": "@johntalton/and-other-delights",
   "version": "1.0.0",
   "description": "",
   "main": "src/aod.js",

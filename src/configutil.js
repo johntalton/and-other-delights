@@ -19,7 +19,7 @@ class ConfigUtil {
 
   static readBoolean(b, fallback) { return b !== undefined ? b : fallback; }
 
-  static readTimout(ms, s, fallback) {
+  static readTimeout(ms, s, fallback) {
     if(ms === undefined && s === undefined) { return fallback; }
     const sz = s != undefined ? s : 0
     const msz = ms !== undefined ? ms : 0;

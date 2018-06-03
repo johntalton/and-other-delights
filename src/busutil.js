@@ -64,6 +64,29 @@ class BusUtil {
       return bus.write(reg, Buffer.from(buffer.buffer, reg, len));
     }));
   }
+
+  /**
+   *
+   **/
+  static fillmapBlock(blk, buffer, fillzero) {
+    const [block, totalLength, max] = BusUtil.normalizeBlock(blk);
+    if(buffer.length !== totalLength) { throw Error('buffer length mismatch'); }
+    // compactRuns(block); // todo
+
+    const parts = block.reduce((acc, [reg, len], index, source) => {
+      const [ lastReg, lastLen ] = index !== 0 ? : source[index - 1] : [0, 0];
+      const lastPos = lastReg + lastLen;
+
+      const prefixLen = reg - lastPos;
+      if(prefixLen > 0) { acc.push(prefix); }
+
+      const part = buffer.slice(reg, len);
+      acc.push(part);
+      return acc;
+    }, []);
+
+    return Buffer.concat(parts, max);
+  }
 }
 
 module.exports = { BusUtil };

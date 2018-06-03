@@ -73,6 +73,9 @@ class BusUtil {
     if(buffer.length !== totalLength) { throw Error('buffer length mismatch'); }
     // compactRuns(block); // todo
 
+    //console.log('fillmapBlock', block, totalLength, max);
+    //console.log(buffer);
+
     const parts = block.reduce((acc, [reg, len], index, source) => {
       const [ lastReg, lastLen ] = index !== 0 ? source[index - 1] : [0, 0];
       const lastPos = lastReg + lastLen;
@@ -80,10 +83,21 @@ class BusUtil {
       const prefixLen = reg - lastPos;
       if(prefixLen > 0) { acc.push(Buffer.alloc(prefixLen).fill(fillzero)); }
 
-      const part = buffer.slice(reg, len);
+      const existingLen = source.reduce((racc, [ , rlen], idx) => {
+        //console.log('red', idx < index, idx, index, racc, rlen)
+        return (idx < index) ? racc + rlen : racc;
+      }, 0);
+
+      const pos = existingLen === 0 ? 0 : existingLen;
+      //console.log(prefixLen, reg, existingLen, pos, len);
+
+      const part = buffer.slice(pos, pos + len);
       acc.push(part);
+
       return acc;
     }, []);
+
+    //console.log(parts);
 
     return Buffer.concat(parts, max);
   }

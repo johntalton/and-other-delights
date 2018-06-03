@@ -78,7 +78,7 @@ class BusUtil {
       const lastPos = lastReg + lastLen;
 
       const prefixLen = reg - lastPos;
-      if(prefixLen > 0) { acc.push(prefix); }
+      if(prefixLen > 0) { acc.push(Buffer.alloc(prefixLen).fill(fillzero)); }
 
       const part = buffer.slice(reg, len);
       acc.push(part);

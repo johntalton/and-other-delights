@@ -74,7 +74,7 @@ class BusUtil {
     // compactRuns(block); // todo
 
     const parts = block.reduce((acc, [reg, len], index, source) => {
-      const [ lastReg, lastLen ] = index !== 0 ? : source[index - 1] : [0, 0];
+      const [ lastReg, lastLen ] = index !== 0 ? source[index - 1] : [0, 0];
       const lastPos = lastReg + lastLen;
 
       const prefixLen = reg - lastPos;

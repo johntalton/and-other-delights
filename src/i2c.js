@@ -1,6 +1,7 @@
 
 const WARN_READ_LENGTH = 32;
 const WARN_WRITE_LENGTH = 32;
+const BUS_FILE_PREFIX = '/dev/i2c-';
 
 /**
  *
@@ -17,6 +18,8 @@ class I2CAddressedBus {
     this._bus = i2cBus;
   }
 
+  get name() { return 'i2c:' + BUS_FILE_PREFIX + '?/' + this.address; }
+  
   get bus() { return this._bus; }
   get address() { return this._address; }
 

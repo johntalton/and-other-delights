@@ -18,7 +18,7 @@ class I2CAddressedBus {
     this._bus = i2cBus;
   }
 
-  get name() { return 'i2c:' + BUS_FILE_PREFIX + this.bus._busNumber + '/0x' + this.address.toString(16); }
+  get name() { return 'i2c:' + BUS_FILE_PREFIX + this.bus._bus._busNumber + '/0x' + this.address.toString(16); }
   
   get bus() { return this._bus; }
   get address() { return this._address; }

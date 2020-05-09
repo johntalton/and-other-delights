@@ -35,11 +35,21 @@ class I2CAddressedBus {
     }
     if(buffer.length > WARN_WRITE_LENGTH) { console.log('over max recommend w length'); }
     return this.bus.writeI2cBlock(this.address, cmd, buffer.length, buffer)
-      .then(({ bytesWritten, buffer }) => { return buffer; }); // todo bytesWritten
+      .then(({ bytesWritten, buffer }) => { return; }); // todo bytesWritten
   }
 
   writeSpecial(special) {
     return this.bus.sendByte(this.address, special);
+  }
+  
+  readBuffer(length) {
+    return this.bus.i2cRead(this.address, length, Buffer.alloc(length))
+      .then(({ bytesRead, buffer }) => buffer); // todo byteRead
+  }
+  
+  writeBuffer(buffer) {
+    return this.bus.i2cWrite(this.address, buffer.length, buffer)
+      .then(({ bytesWritten, buffer }) => { return; }); // todo bytesWritten
   }
 }
 

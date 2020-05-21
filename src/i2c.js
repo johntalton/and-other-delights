@@ -19,7 +19,7 @@ class I2CAddressedBus {
   }
 
   get name() { return 'i2c:' + BUS_FILE_PREFIX + this.bus._bus._busNumber + '/0x' + this.address.toString(16); }
-  
+
   get bus() { return this._bus; }
   get address() { return this._address; }
 
@@ -44,12 +44,12 @@ class I2CAddressedBus {
   writeSpecial(special) {
     return this.bus.sendByte(this.address, special);
   }
-  
+
   readBuffer(length) {
     return this.bus.i2cRead(this.address, length, Buffer.alloc(length))
       .then(({ bytesRead, buffer }) => buffer); // todo byteRead
   }
-  
+
   writeBuffer(buffer) {
     return this.bus.i2cWrite(this.address, buffer.length, buffer)
       .then(({ bytesWritten, buffer }) => { return; }); // todo bytesWritten

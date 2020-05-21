@@ -50,7 +50,10 @@ class MockDevice {
     const maskedCommand = command & this.definition.commandMask;
 
     [...buffer].filter((_, index) => index < length).forEach((item, index) => {
-      if(!this.register(maskedCommand + index).valid) { console.log('invalid write address', '0x' + maskedCommand.$
+      if(!this.register(maskedCommand + index).valid) {
+        console.log('invalid write address', '0x' + maskedCommand.toString(16), index);
+        return;
+      }
       if(this.register(maskedCommand + index).readOnly === true) { console.log('readOnly'); return; }
       this.register(maskedCommand + index).data = item;
     });
@@ -65,7 +68,10 @@ class MockDevice {
 
     const buffer = Buffer.alloc(length);
     [...new Array(length)].forEach((_, index) => {
-      if(!this.register(maskedCommand + index).valid) { console.log('invalid read address', '0x' + maskedCommand.t$
+      if(!this.register(maskedCommand + index).valid) {
+        console.log('invalid read address', '0x' + maskedCommand.toString(16), index);
+        return;
+      }
       buffer[index] = this.register(maskedCommand + index).data;
     });
     const bytesRead = buffer.length;

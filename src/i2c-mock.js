@@ -90,7 +90,7 @@ class MockBus {
   static addDevice(bus, address, deviceDefinition) {
     if(MockBus.addressMap === undefined) { MockBus.addressMap = {}; }
     if(MockBus.addressMap[bus] === undefined){ MockBus.addressMap[bus] = {}; }
-    MockBus.addressMap[bus][address] = new MockDevice(addres, deviceDefinition);
+    MockBus.addressMap[bus][address] = new MockDevice(address, deviceDefinition);
   }
 
   static openPromisified(busNumber) {

@@ -10,5 +10,5 @@ const { I2CMockBus } = require('./i2c-mock.js');
 module.exports = {
   BitUtil,
   ConfigUtil, NameValueUtil, ClassSelector,
-  BusUtil, I2CAddressedBus, I2cMockBus
+  BusUtil, I2CAddressedBus, I2CMockBus
 };

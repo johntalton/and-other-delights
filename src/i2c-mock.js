@@ -77,6 +77,23 @@ class MockDevice {
     const bytesRead = buffer.length;
     return Promise.resolve({ bytesRead, buffer });
   }
+
+  sendByte(address, byte) {
+    //
+    console.log('sendByte', address, byte);
+    return Promise.resolve();
+  }
+
+  i2cRead(address, length, buffer) {
+    //
+    console.log('i2cRead', address, length, buffer)
+    return Promise.resolve({ bytesRead: 0, buffer });
+  }
+
+  i2cWrite(address, length, buffer) {
+    //
+    return Promise.resolve();
+  }
 }
 
 /**
@@ -103,6 +120,18 @@ class MockBus {
 
   readI2cBlock(address, command, length) {
     return MockBus.addressMap[this.busNumber][address].readI2cBlock(address, command, length);
+  }
+
+  sendByte(address, byte) {
+    return MockBus.addressMap[this.busNumber][address].sendByte(address, byte);
+  }
+
+  i2cRead(address, length, buffer) {
+    return MockBus.addressMap[this.busNumber][address].i2cRead(address, length, buffer);
+  }
+
+  i2cWrite(address, length, buffer) {
+    return MockBus.addressMap[this.busNumber][address].i2cWrite(address, length, buffer);
   }
 }
 

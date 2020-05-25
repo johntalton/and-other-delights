@@ -86,7 +86,7 @@ class MockDevice {
 
   i2cRead(address, length, buffer) {
     //
-    console.log('i2cRead', address, length, buffer)
+    console.log('i2cRead', address, length)
 
     const register = 0x00;
     if(!this.register(register).valid) {

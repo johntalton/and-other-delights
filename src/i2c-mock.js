@@ -87,12 +87,30 @@ class MockDevice {
   i2cRead(address, length, buffer) {
     //
     console.log('i2cRead', address, length, buffer)
-    return Promise.resolve({ bytesRead: 0, buffer });
+
+    const register = 0x00;
+    if(!this.register(register).valid) {
+      console.log('invalid read address', '0x' + register.toString(16));
+      return;
+    }
+
+    buffer[0] = this.register(register).data;
+    return Promise.resolve({ bytesRead: 1, buffer });
   }
 
   i2cWrite(address, length, buffer) {
     //
-    return Promise.resolve();
+    console.log('i2cWrite', address, length, buffer);
+    const register = 0x00;
+    if(!this.register(register).valid) {
+        console.log('invalid write address', '0x' + register.toString(16));
+        return;
+      }
+    if(this.register(register).readOnly === true) { console.log('readOnly'); return; }
+    this.register(register).data = buffer[0];
+
+    const bytesWriten = length;
+    return Promise.resolve({ bytesWriten, buffer });
   }
 }
 

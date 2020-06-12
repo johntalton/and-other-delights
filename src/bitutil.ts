@@ -57,6 +57,7 @@ export class BitUtil {
         if(item.length !== 2) { console.log('sloppy packmap fomrat', item); return [item[0], 1]; }
         return item;
       }
+      console.log('sloppy packmap fomrat', item);
       return [item, 1];
     });
   }

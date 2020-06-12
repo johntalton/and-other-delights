@@ -58,10 +58,11 @@ export class BusUtil {
    *
    * @param bus The addressed bus to read from.
    * @param block A register Block template used to read.
+   * @param warnNotNormal If true, emit console warnnings about short hand usage.
    *
    **/
-  static readblock(bus: I2CAddressedBus, block: BlockDefinition) {
-    const [normalBlock, totalLength] = BusUtil.normalizeBlock(block);
+  static readblock(bus: I2CAddressedBus, block: BlockDefinition, warnNotNormal: boolean = true): Promise<Buffer> {
+    const [normalBlock, totalLength] = BusUtil.normalizeBlock(block, warnNotNormal);
 
     // now lets make all those bus calls
     return Promise.all(normalBlock.map(([reg, len]) => {
@@ -81,7 +82,7 @@ export class BusUtil {
    * by nature and is not guaranteed by this call to not be
    * interrupted or delayed by other bus activity.
    **/
-  static writeblock(bus: I2CAddressedBus, block: BlockDefinition, buffer: Buffer) {
+  static writeblock(bus: I2CAddressedBus, block: BlockDefinition, buffer: Buffer, warnNotNormal: boolean = true): Promise<void> {
     const [normalBlock, totalLength, max] = BusUtil.normalizeBlock(block);
     //console.log('writeblock', blks, buffer, totalLength, max)
     if(max > buffer.length) { throw new Error('max address is outside buffer length'); }
@@ -104,8 +105,8 @@ export class BusUtil {
    * @param buffer A buffer from which data is drawn from.
    * @param fillzero A value to use to fill the Zero space.
    **/
-  static fillmapBlock(block: BlockDefinition, buffer: Buffer, fillzero: number = 0): Buffer {
-    const [normalBlock, totalLength, max] = BusUtil.normalizeBlock(block);
+  static fillmapBlock(block: BlockDefinition, buffer: Buffer, fillzero: number = 0, warnNotNormal: boolean = true): Buffer {
+    const [normalBlock, totalLength, max] = BusUtil.normalizeBlock(block, warnNotNormal);
     if(buffer.length !== totalLength) { throw new Error('buffer length mismatch'); }
 
     const sourceDataIndexs = normalBlock.reduce((acc, item) => {
@@ -132,7 +133,7 @@ export class BusUtil {
       const pad = Buffer.alloc(padLength, fillzero);
 
       const result = Buffer.concat([pad, data]);
-      console.log('->',result)
+      // console.log('->',result)
       return result;
     }), max);
   }

@@ -30,7 +30,7 @@ const WRITE_MULTI_SCRIPT: Script = [
 describe('BusUtil', () => {
   describe('#normalizeBlock', () => {
     it('should normalize', () => {
-      expect(BusUtil.normalizeBlock([[37], [42, 2], 77])).to.deep.equal([[[37, 1], [42, 2], [77, 1]], 4, 78]);
+      expect(BusUtil.normalizeBlock([[37], [42, 2], 77], false)).to.deep.equal([[[37, 1], [42, 2], [77, 1]], 4, 78]);
     });
   });
 
@@ -61,7 +61,7 @@ describe('BusUtil', () => {
     });
 
     it('should write simple byte single block', async () => {
-      await BusUtil.writeblock(new I2CAddressedBus(ScriptBus.from(WRITE_SINGLE_SCRIPT), 0x00), [[0x01]], Buffer.from([0, 3]));
+      await BusUtil.writeblock(new I2CAddressedBus(ScriptBus.from(WRITE_SINGLE_SCRIPT), 0x00), [[0x01, 1]], Buffer.from([0, 3]));
     });
 
     it('should write simple block', async () => {
@@ -75,11 +75,11 @@ describe('BusUtil', () => {
 
   describe('#fillmapBlock', () => {
     it('should pass most basic 1:1 test', () => {
-      expect(BusUtil.fillmapBlock([0], Buffer.from([3]), 0xFE)).to.deep.equal(Buffer.from([3]));
+      expect(BusUtil.fillmapBlock([0], Buffer.from([3]), 0xFE, false)).to.deep.equal(Buffer.from([3]));
     });
 
     it('should pass most basic 1:1 test (offset)', () => {
-      expect(BusUtil.fillmapBlock([3], Buffer.from([3]), 0xFE)).to.deep.equal(Buffer.from([0xFE, 0xFE, 0xFE, 3]));
+      expect(BusUtil.fillmapBlock([3], Buffer.from([3]), 0xFE, false)).to.deep.equal(Buffer.from([0xFE, 0xFE, 0xFE, 3]));
     });
 
     it('should pass basic example', () => {
@@ -100,27 +100,27 @@ describe('BusUtil', () => {
     });
 
     it('should fill in the middle', () => {
-      expect(BusUtil.fillmapBlock([0, 2], Buffer.from([3, 5]), 0xFE)).to.deep.equal(Buffer.from([3, 0xFE, 5]));
+      expect(BusUtil.fillmapBlock([0, 2], Buffer.from([3, 5]), 0xFE, false)).to.deep.equal(Buffer.from([3, 0xFE, 5]));
     });
 
     it('should fill in front', () => {
-      expect(BusUtil.fillmapBlock([2], Buffer.from([3]), 0xFE)).to.deep.equal(Buffer.from([0xFE, 0xFE, 3]));
+      expect(BusUtil.fillmapBlock([2], Buffer.from([3]), 0xFE, false)).to.deep.equal(Buffer.from([0xFE, 0xFE, 3]));
     });
 
     it('should fill in both', () => {
-      expect(BusUtil.fillmapBlock([1, 4], Buffer.from([3, 5]), 0xFE)).to.deep.equal(Buffer.from([0xFE, 3, 0xFE, 0xFE, 5]));
+      expect(BusUtil.fillmapBlock([1, 4], Buffer.from([3, 5]), 0xFE, false)).to.deep.equal(Buffer.from([0xFE, 3, 0xFE, 0xFE, 5]));
     });
 
     it('should handle multi-byte', () => {
-      expect(BusUtil.fillmapBlock([[0, 4], 4], Buffer.from([3, 5, 7, 9, 11]), 0xFE)).to.deep.equal(Buffer.from([3, 5, 7, 9, 11]));
+      expect(BusUtil.fillmapBlock([[0, 4], 4], Buffer.from([3, 5, 7, 9, 11]), 0xFE, false)).to.deep.equal(Buffer.from([3, 5, 7, 9, 11]));
     });
 
     it('should handle multi-byte padded', () => {
-      expect(BusUtil.fillmapBlock([[2, 4], 8], Buffer.from([3, 5, 7, 9, 11]), 0xFE)).to.deep.equal(Buffer.from([0xFE, 0xFE, 3, 5, 7, 9, 0xFE, 0xFE, 11]));
+      expect(BusUtil.fillmapBlock([[2, 4], 8], Buffer.from([3, 5, 7, 9, 11]), 0xFE, false)).to.deep.equal(Buffer.from([0xFE, 0xFE, 3, 5, 7, 9, 0xFE, 0xFE, 11]));
     });
 
     it('should error if input buffer length does not match BlockDefinition', () => {
-      expect(() => BusUtil.fillmapBlock([1, 2, 3], Buffer.alloc(5, 0))).to.throw(Error);
+      expect(() => BusUtil.fillmapBlock([1, 2, 3], Buffer.alloc(5, 0), 0xFE, false)).to.throw(Error);
     });
 
     it('should match example used in hand coded test', () => {

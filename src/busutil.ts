@@ -5,37 +5,52 @@ const BASE_10 = 10;
 export type BlockDefinition = ([number, number] | [number] | number) []
 export type NormalizedBlockDefinition = [number, number][];
 
+
 /**
  *
  **/
 export class BusUtil {
-  static normalizeBlock(blk: BlockDefinition): [NormalizedBlockDefinition, number, number] {
+  /**
+   * Normalizes a Block Definitions into it strict form.
+   *
+   * todo: enable compact runs flag
+   * todo: validate accending address order
+   * todo: validate non-overlapping runs
+   *
+   * Disabling strict warnings will supress the console output if you
+   * wish to allow for shorthand definitions.
+   * @param blk
+   */
+  static normalizeBlock(blk: BlockDefinition, warnStrict: boolean = true): [NormalizedBlockDefinition, number, number] {
     // normalize block from shorthand (aka [[37, 1], [37], 37] are all the same)
     const block: NormalizedBlockDefinition = blk.map(item => {
       if(Array.isArray(item)) {
         if(item.length !== 2) {
           const [first] = item;
           if(first === undefined) { throw new Error('unexpected format: ' + JSON.stringify(blk)); }
-          console.log('sloppy format', item);
+          if(warnStrict) { console.log('normalizeBlock: sloppy format', item); }
           return [item[0], 1];
         }
         return item;
       }
+
+      if(warnStrict) { console.log('normalizeBlock: sloppy format', item); }
       return [item, 1];
     })
     // make it all int-like - todo is this overkill, yes
+    // is this even needed with type checking
     .map(([reg, len]) => [parseInt(reg.toString(), BASE_10), parseInt(len.toString(), BASE_10)]);
 
     // TODO what about NaN ... this code may be wrong
     // const notinvalid = block.reduce((acc, [reg, len]) => !Number.isNaN(reg) && !Number.isNaN(len), true);
 
-    // and the total...
-    const totalLength = block.reduce((out, [ , len]) => out + len, 0);
-    // console.log(block, totalLength);
+    // and the totals...
+    // caclulate the required source data length, the packed version of the data
+    const sourceDataLength = block.reduce((out, [ , len]) => out + len, 0);
+    // calculate the total unpacked lenght defined by the block
+    const blockLength = block.reduce((out, [reg, len]) => Math.max(out, reg + len), 0);
 
-    const max = block.reduce((out, [reg, len]) => Math.max(out, reg + len), 0);
-
-    return [block, totalLength, max];
+    return [block, sourceDataLength, blockLength];
   }
 
   /**
@@ -92,7 +107,6 @@ export class BusUtil {
   static fillmapBlock(block: BlockDefinition, buffer: Buffer, fillzero: number = 0): Buffer {
     const [normalBlock, totalLength, max] = BusUtil.normalizeBlock(block);
     if(buffer.length !== totalLength) { throw new Error('buffer length mismatch'); }
-    // compactRuns(block); // todo as part of normalize?
 
     const sourceDataIndexs = normalBlock.reduce((acc, item) => {
       const [ , length] = item;
@@ -120,6 +134,6 @@ export class BusUtil {
       const result = Buffer.concat([pad, data]);
       console.log('->',result)
       return result;
-    }));
+    }), max);
   }
 }

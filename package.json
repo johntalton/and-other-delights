@@ -1,6 +1,6 @@
 {
   "name": "@johntalton/and-other-delights",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "",
   "main": "lib/aod.js",
   "type": "commonjs",
@@ -12,7 +12,8 @@
   ],
   "types": "lib/aod.d.ts",
   "scripts": {
-    "lint:ts": "./node_modules/.bin/eslint -c .eslintrc.json --ext .ts src/*.ts",
+    "lint": "npm run lint:js",
+    "lint:x-ts": "./node_modules/.bin/eslint -c .eslintrc.json --ext .ts src/*.ts",
     "lint:js": "./node_modules/.bin/eslint -c .eslintrc.json lib/*.js",
     "format:beauty": "js-beautify --good-stuff -j --indent-size 2 --space-in-empty-paren ./lib/*.js",
     "format:min": "terser lib/*.js --output aod.min.js --ecma 2020 --comments some --compress --mangle ",
@@ -78,7 +79,7 @@
     "eslint-plugin-fp": "^2.3.0",
     "eslint-plugin-immutable": "^1.0.0",
     "eslint-plugin-import": "^2.21.1",
-    "eslint-plugin-jsdoc": "^26.0.1",
+    "eslint-plugin-jsdoc": "^27.X.X",
     "eslint-plugin-no-loops": "^0.3.0",
     "eslint-plugin-no-use-extend-native": "^0.5.0",
     "eslint-plugin-promise": "^4.0.1",

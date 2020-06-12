@@ -89,37 +89,37 @@ export class BusUtil {
    * @param buffer A buffer from which data is drawn from.
    * @param fillzero A value to use to fill the Zero space.
    **/
-  static fillmapBlock(block: BlockDefinition, buffer: Buffer, fillzero: number = 0) {
+  static fillmapBlock(block: BlockDefinition, buffer: Buffer, fillzero: number = 0): Buffer {
     const [normalBlock, totalLength, max] = BusUtil.normalizeBlock(block);
     if(buffer.length !== totalLength) { throw new Error('buffer length mismatch'); }
-    // compactRuns(block); // todo
+    // compactRuns(block); // todo as part of normalize?
 
-    //console.log('fillmapBlock', block, totalLength, max);
-    //console.log(buffer);
+    const sourceDataIndexs = normalBlock.reduce((acc, item) => {
+      const [ , length] = item;
+      const [last] = acc.slice(-1);
+      // console.log(length, last, item, acc)
+      return [...acc, last + length];
+    }, [0]);
 
-    const parts = normalBlock.reduce((acc, [reg, len], index, source) => {
-      const [ lastReg, lastLen ] = index !== 0 ? source[index - 1] : [0, 0];
-      const lastPos = lastReg + lastLen;
+    const ends = [0].concat(normalBlock.map(([address, length]) => address + length));
 
-      const prefixLen = reg - lastPos;
-      if(prefixLen > 0) { acc.push(Buffer.alloc(prefixLen).fill(fillzero)); }
+    // console.log(sourceDataIndexs, ends)
+    return Buffer.concat([...normalBlock].map((item, index) => {
+      const [address, length] = item;
 
-      const existingLen = source.reduce((racc, [ , rlen], idx) => {
-        //console.log('red', idx < index, idx, index, racc, rlen)
-        return (idx < index) ? racc + rlen : racc;
-      }, 0);
+      const previousEnd = ends[index];
+      const padLength = address - previousEnd;
+      const dataIndex = sourceDataIndexs[index];
+      const data = buffer.slice(dataIndex, dataIndex + length);
 
-      const pos = existingLen === 0 ? 0 : existingLen;
-      //console.log(prefixLen, reg, existingLen, pos, len);
+      // console.log(index, 'PE', previousEnd, 'pL', padLength, 'dI', dataIndex, item, data)
+      if(padLength < 0) { return data; }
 
-      const part = buffer.slice(pos, pos + len);
-      acc.push(part);
+      const pad = Buffer.alloc(padLength, fillzero);
 
-      return acc;
-    }, []);
-
-    //console.log(parts);
-
-    return Buffer.concat(parts, max);
+      const result = Buffer.concat([pad, data]);
+      console.log('->',result)
+      return result;
+    }));
   }
 }

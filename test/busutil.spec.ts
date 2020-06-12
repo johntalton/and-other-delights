@@ -78,6 +78,27 @@ describe('BusUtil', () => {
       expect(BusUtil.fillmapBlock([0], Buffer.from([3]), 0xFE)).to.deep.equal(Buffer.from([3]));
     });
 
+    it('should pass most basic 1:1 test (offset)', () => {
+      expect(BusUtil.fillmapBlock([3], Buffer.from([3]), 0xFE)).to.deep.equal(Buffer.from([0xFE, 0xFE, 0xFE, 3]));
+    });
+
+    it('should pass basic example', () => {
+      const fill = -1;
+      const firstPad = Buffer.alloc(10, fill);
+      const pre20Pad = Buffer.alloc(8, fill);
+      const pre30Pad = Buffer.alloc(9, fill);
+      const expected = Buffer.concat([firstPad, Buffer.from([3, 5]), pre20Pad, Buffer.from([7]), pre30Pad, Buffer.from([9, 11, 13])], 33);
+      expect(BusUtil.fillmapBlock([[10, 2], [20, 1], [30, 3]], Buffer.from([3, 5, 7, 9, 11, 13]), fill)).to.deep.equal(expected);
+    });
+
+    it('should pass basic example (collapsed)', () => {
+      const fill = -1;
+      const firstPad = Buffer.alloc(10, fill);
+      const pre30Pad = Buffer.alloc(17, fill);
+      const expected = Buffer.concat([firstPad, Buffer.from([3, 5, 7]), pre30Pad, Buffer.from([9, 11, 13])], 33);
+      expect(BusUtil.fillmapBlock([[10, 2], [12, 1], [30, 3]], Buffer.from([3, 5, 7, 9, 11, 13]), fill)).to.deep.equal(expected);
+    });
+
     it('should fill in the middle', () => {
       expect(BusUtil.fillmapBlock([0, 2], Buffer.from([3, 5]), 0xFE)).to.deep.equal(Buffer.from([3, 0xFE, 5]));
     });

@@ -15,6 +15,7 @@
         "strictNullChecks": true,
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
+        "forceConsistentCasingInFileNames": true,
         "allowJs": false,
 
         "removeComments": false,

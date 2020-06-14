@@ -2,8 +2,7 @@ import { describe, it } from 'mocha';
 import { expect } from 'chai';
 
 // eslint-disable-next-line sort-imports
-import { BusUtil, I2CAddressedBus } from './aod';
-import { EOS_SCRIPT, Script, ScriptBus } from './helper.scriptbus';
+import { BusUtil, EOS_SCRIPT, I2CAddressedBus, Script, ScriptBus } from './aod';
 
 const SCRIPT_BUS_NUMBER = 1;
 
@@ -36,52 +35,52 @@ describe('BusUtil', () => {
     });
   });
 
-  describe('#readblock', () => {
+  describe('#readBlock', () => {
     it('should return empty on empty block read', async () => {
-      const result = await BusUtil.readblock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, EOS_SCRIPT), 0x00), []);
+      const result = await BusUtil.readBlock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, EOS_SCRIPT), 0x00), []);
       expect(result).to.deep.equal(Buffer.from([]));
     });
 
     it('should read a simple block', async () => {
-      const result = await BusUtil.readblock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, READ_SINGLE_SCRIPT), 0x00), [[0, 2]]);
+      const result = await BusUtil.readBlock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, READ_SINGLE_SCRIPT), 0x00), [[0, 2]]);
       expect(result).to.deep.equal(Buffer.from([3, 5]));
     });
 
     it('should read a multi block', async () => {
-      const result = await BusUtil.readblock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, READ_MULTI_SCRIPT), 0x00), [[0x37, 2], [0x42, 4]]);
+      const result = await BusUtil.readBlock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, READ_MULTI_SCRIPT), 0x00), [[0x37, 2], [0x42, 4]]);
       expect(result).to.deep.equal(Buffer.from([3, 5, 7, 9, 11, 13]));
     });
 
     it('should error when bus layer errors', () => {
-      expect(() => BusUtil.readblock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, READ_MULTI_SCRIPT), 0x00), [[0x37, 2], [0x42, 4], [0x77, 2]])).to.throw();
+      expect(() => BusUtil.readBlock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, READ_MULTI_SCRIPT), 0x00), [[0x37, 2], [0x42, 4], [0x77, 2]])).to.throw();
     });
   });
 
-  describe('#writeblock', () => {
+  describe('#writeBlock', () => {
     it('should write empty on empty block', async () => {
-      await BusUtil.writeblock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, EOS_SCRIPT), 0x00), [], Buffer.from([]));
+      await BusUtil.writeBlock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, EOS_SCRIPT), 0x00), [], Buffer.from([]));
     });
 
     it('should write simple byte single block', async () => {
-      await BusUtil.writeblock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, WRITE_SINGLE_SCRIPT), 0x00), [[0x01, 1]], Buffer.from([0, 3]));
+      await BusUtil.writeBlock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, WRITE_SINGLE_SCRIPT), 0x00), [[0x01, 1]], Buffer.from([0, 3]));
     });
 
     it('should write simple block', async () => {
-      await BusUtil.writeblock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, WRITE_SINGLE_SCRIPT), 0x00), [[0x01, 2]], Buffer.from([0, 3, 5]));
+      await BusUtil.writeBlock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, WRITE_SINGLE_SCRIPT), 0x00), [[0x01, 2]], Buffer.from([0, 3, 5]));
     });
 
     it('should write multi block', async () => {
-      await BusUtil.writeblock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, WRITE_MULTI_SCRIPT), 0x00), [[0x01, 2], [0x4, 4]], Buffer.from([0, 3, 5, 0, 7, 9, 11, 13]));
+      await BusUtil.writeBlock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, WRITE_MULTI_SCRIPT), 0x00), [[0x01, 2], [0x4, 4]], Buffer.from([0, 3, 5, 0, 7, 9, 11, 13]));
     });
   });
 
-  describe('#fillmapBlock', () => {
+  describe('#expandBlock', () => {
     it('should pass most basic 1:1 test', () => {
-      expect(BusUtil.fillmapBlock([0], Buffer.from([3]), 0xFE, false)).to.deep.equal(Buffer.from([3]));
+      expect(BusUtil.expandBlock([0], Buffer.from([3]), 0xFE, false)).to.deep.equal(Buffer.from([3]));
     });
 
     it('should pass most basic 1:1 test (offset)', () => {
-      expect(BusUtil.fillmapBlock([3], Buffer.from([3]), 0xFE, false)).to.deep.equal(Buffer.from([0xFE, 0xFE, 0xFE, 3]));
+      expect(BusUtil.expandBlock([3], Buffer.from([3]), 0xFE, false)).to.deep.equal(Buffer.from([0xFE, 0xFE, 0xFE, 3]));
     });
 
     it('should pass basic example', () => {
@@ -90,7 +89,7 @@ describe('BusUtil', () => {
       const pre20Pad = Buffer.alloc(8, fill);
       const pre30Pad = Buffer.alloc(9, fill);
       const expected = Buffer.concat([firstPad, Buffer.from([3, 5]), pre20Pad, Buffer.from([7]), pre30Pad, Buffer.from([9, 11, 13])], 33);
-      expect(BusUtil.fillmapBlock([[10, 2], [20, 1], [30, 3]], Buffer.from([3, 5, 7, 9, 11, 13]), fill)).to.deep.equal(expected);
+      expect(BusUtil.expandBlock([[10, 2], [20, 1], [30, 3]], Buffer.from([3, 5, 7, 9, 11, 13]), fill)).to.deep.equal(expected);
     });
 
     it('should pass basic example (collapsed)', () => {
@@ -98,35 +97,35 @@ describe('BusUtil', () => {
       const firstPad = Buffer.alloc(10, fill);
       const pre30Pad = Buffer.alloc(17, fill);
       const expected = Buffer.concat([firstPad, Buffer.from([3, 5, 7]), pre30Pad, Buffer.from([9, 11, 13])], 33);
-      expect(BusUtil.fillmapBlock([[10, 2], [12, 1], [30, 3]], Buffer.from([3, 5, 7, 9, 11, 13]), fill)).to.deep.equal(expected);
+      expect(BusUtil.expandBlock([[10, 2], [12, 1], [30, 3]], Buffer.from([3, 5, 7, 9, 11, 13]), fill)).to.deep.equal(expected);
     });
 
     it('should fill in the middle', () => {
-      expect(BusUtil.fillmapBlock([0, 2], Buffer.from([3, 5]), 0xFE, false)).to.deep.equal(Buffer.from([3, 0xFE, 5]));
+      expect(BusUtil.expandBlock([0, 2], Buffer.from([3, 5]), 0xFE, false)).to.deep.equal(Buffer.from([3, 0xFE, 5]));
     });
 
     it('should fill in front', () => {
-      expect(BusUtil.fillmapBlock([2], Buffer.from([3]), 0xFE, false)).to.deep.equal(Buffer.from([0xFE, 0xFE, 3]));
+      expect(BusUtil.expandBlock([2], Buffer.from([3]), 0xFE, false)).to.deep.equal(Buffer.from([0xFE, 0xFE, 3]));
     });
 
     it('should fill in both', () => {
-      expect(BusUtil.fillmapBlock([1, 4], Buffer.from([3, 5]), 0xFE, false)).to.deep.equal(Buffer.from([0xFE, 3, 0xFE, 0xFE, 5]));
+      expect(BusUtil.expandBlock([1, 4], Buffer.from([3, 5]), 0xFE, false)).to.deep.equal(Buffer.from([0xFE, 3, 0xFE, 0xFE, 5]));
     });
 
     it('should handle multi-byte', () => {
-      expect(BusUtil.fillmapBlock([[0, 4], 4], Buffer.from([3, 5, 7, 9, 11]), 0xFE, false)).to.deep.equal(Buffer.from([3, 5, 7, 9, 11]));
+      expect(BusUtil.expandBlock([[0, 4], 4], Buffer.from([3, 5, 7, 9, 11]), 0xFE, false)).to.deep.equal(Buffer.from([3, 5, 7, 9, 11]));
     });
 
     it('should handle multi-byte padded', () => {
-      expect(BusUtil.fillmapBlock([[2, 4], 8], Buffer.from([3, 5, 7, 9, 11]), 0xFE, false)).to.deep.equal(Buffer.from([0xFE, 0xFE, 3, 5, 7, 9, 0xFE, 0xFE, 11]));
+      expect(BusUtil.expandBlock([[2, 4], 8], Buffer.from([3, 5, 7, 9, 11]), 0xFE, false)).to.deep.equal(Buffer.from([0xFE, 0xFE, 3, 5, 7, 9, 0xFE, 0xFE, 11]));
     });
 
     it('should error if input buffer length does not match BlockDefinition', () => {
-      expect(() => BusUtil.fillmapBlock([1, 2, 3], Buffer.alloc(5, 0), 0xFE, false)).to.throw(Error);
+      expect(() => BusUtil.expandBlock([1, 2, 3], Buffer.alloc(5, 0), 0xFE, false)).to.throw(Error);
     });
 
     it('should match example used in hand coded test', () => {
-      expect(BusUtil.fillmapBlock([[0x01, 2], [0x4, 4]], Buffer.from([3, 5, 7, 9, 11, 13]))).to.deep.equal(Buffer.from([0, 3, 5, 0, 7, 9, 11, 13]));
+      expect(BusUtil.expandBlock([[0x01, 2], [0x4, 4]], Buffer.from([3, 5, 7, 9, 11, 13]))).to.deep.equal(Buffer.from([0, 3, 5, 0, 7, 9, 11, 13]));
 
     });
   });

@@ -19,30 +19,31 @@ const ONE = 1;
 export class BitUtil {
   /**
    * A utility to pack multiple byte-parts into a single value.
-   * @param packmap The pack template to parse params by.
-   * @param params The parameters to the pack map.
+   *
+   * @param packMap The pack template to parse params by.
+   * @param params The parameters to the packMap.
    * @returns Parameter bits packed into single byte.
    */
-  static packbits(packmap: PackMap, ...params: Array<number>): number {
-    return BitUtil._normalizePackmap(packmap)
+  static packBits(packMap: PackMap, params: Array<number>): number {
+    return BitUtil._normalizePackmap(packMap)
       .reduce((accum, [position, length], idx) => {
         const mask = Math.pow(2, length) - 1;
         const value = params[idx] & mask;
         const shift = position + 1 - length;
         return (accum & ~(mask << shift)) | (value << shift);
-      }, 0);
+      }, ZERO);
   }
 
   /**
    *  A utility to split a value into its corresponding template parts.
    *
-   * @param packmap A template by with to parse bits.
+   * @param packMap A template by with to parse bits.
    * @param bits A value to be used to extract the template parts.
    * @returns An array of bytes extracted from the bits parameter defined
-   *  by the packmap.
+   *  by the packMap.
    **/
-  static unpackbits(packmap: PackMap, bits: number): Array<number> {
-    return BitUtil._normalizePackmap(packmap)
+  static unpackBits(packMap: PackMap, bits: number): Array<number> {
+    return BitUtil._normalizePackmap(packMap)
       .map(([position, length]) => {
         // console.log('unpacking', bits.toString(2), position, length);
         return BitUtil._readBits(bits, position, length);
@@ -50,7 +51,10 @@ export class BitUtil {
   }
 
   // position if from left->right with zero index
-  static mapbits(bits: number, position: number, length: number): number { return BitUtil._readBits(bits, position, length); }
+  static mapBits(bits: number, position: number, length: number): number {
+    return BitUtil._readBits(bits, position, length);
+  }
+
   static _readBits(bits: number, position: number, length: number): number {
     const shift = position - length + 1;
     const mask = Math.pow(2, length) - 1;
@@ -61,17 +65,17 @@ export class BitUtil {
   static _normalizePackmap(packmap: PackMap): NormalizedPackMap {
     return packmap.map(item => {
       if(Array.isArray(item)) {
-        if(item.length !== 2) { console.log('sloppy packmap format', item); return [item[0], 1]; }
+        if(item.length !== 2) { console.log('sloppy packMap format', item); return [item[0], 1]; }
         return item;
       }
-      console.log('sloppy packmap format', item);
+      console.log('sloppy packMap format', item);
       return [item, 1];
     });
   }
 
   // --------------
 
-  static decodeTwos(twos: number, length: number) {
+  static decodeTwos(twos: number, length: number): number {
     const smask = ONE << (length - ONE);
     if((twos & smask) !== smask) { return twos; }
     // this is a subtle way to coerce truncated twos
@@ -79,7 +83,7 @@ export class BitUtil {
     return NEGATIVE_ONE << length - ONE | twos;
   }
 
-  static reconstructNbit(nbit: number, ...parts: number[]): number {
+  static reconstructNBit(nbit: number, parts: Array<number>): number {
     // 20-bit does not follow the pattern of the above
     // shift up and use the low bit of the part as the remaining
     // bits.  Instead it uses the parts high order bits as the
@@ -108,7 +112,7 @@ export class BitUtil {
     .reduce((acc, part) => acc | part, ZERO);
   }
 
-  static reconstruct10bit(msb: number, lsb_2bit: number) { return BitUtil.reconstructNbit(10, msb, lsb_2bit); }
-  static reconstruct12bit(msb: number, lsb_4bit: number) { return BitUtil.reconstructNbit(12, msb, lsb_4bit); }
-  static reconstruct20bit(msb: number, lsb: number, xlsb: number) { return BitUtil.reconstructNbit(20, msb, lsb, xlsb); }
+  static reconstruct10bit(msb: number, lsb_2bit: number) { return BitUtil.reconstructNBit(10, [msb, lsb_2bit]); }
+  static reconstruct12bit(msb: number, lsb_4bit: number) { return BitUtil.reconstructNBit(12, [msb, lsb_4bit]); }
+  static reconstruct20bit(msb: number, lsb: number, xlsb: number) { return BitUtil.reconstructNBit(20, [msb, lsb, xlsb]); }
 }

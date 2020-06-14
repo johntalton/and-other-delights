@@ -64,7 +64,7 @@ export class BusUtil {
    * @returns A Promise the resolves to the read Buffer.
    *
    **/
-  static readblock(bus: I2CAddressedBus, block: BlockDefinition, warnNotNormal = true): Promise<Buffer> {
+  static readBlock(bus: I2CAddressedBus, block: BlockDefinition, warnNotNormal = true): Promise<Buffer> {
     const [normalBlock, totalLength] = BusUtil.normalizeBlock(block, warnNotNormal);
 
     // now lets make all those bus calls
@@ -87,9 +87,9 @@ export class BusUtil {
    * by nature and is not guaranteed by this call to not be
    * interrupted or delayed by other bus activity.
    **/
-  static writeblock(bus: I2CAddressedBus, block: BlockDefinition, buffer: Buffer, warnNotNormal = true): Promise<void> {
+  static writeBlock(bus: I2CAddressedBus, block: BlockDefinition, buffer: Buffer, warnNotNormal = true): Promise<void> {
     const [normalBlock, totalLength, max] = BusUtil.normalizeBlock(block);
-    // console.log('writeblock', block, buffer, totalLength, max)
+    // console.log('writeBlock', block, buffer, totalLength, max)
     if(max > buffer.length) { throw new Error('max address is outside buffer length'); }
 
     return Promise.all(normalBlock.map(([reg, len]) => {
@@ -99,20 +99,20 @@ export class BusUtil {
     .then(lengths => lengths.reduce((acc, item) => acc + item, 0))
     .then(bytesWritten => {
       if(bytesWritten !== totalLength) { throw new Error('bytes written mismatch'); }
-      return;
+      return; // eslint-disable-line no-useless-return
     });
   }
 
   /**
-   * Fills the gasp between block templates to form contiguous buffer.
+   * Expands/Fills the gasp between block templates to form contiguous buffer.
    *
    * @param block A block template used to map data into output.
    * @param buffer A buffer from which data is drawn from.
-   * @param fillzero A value to use to fill the Zero space.
+   * @param fill A value to use to fill the Zero space.
    * @param warnNotNormal If true, enabled warnings about non-normal format.
    * @returns A Buffer filled and extended given the template.
    **/
-  static fillmapBlock(block: BlockDefinition, buffer: Buffer, fillzero = 0, warnNotNormal = true): Buffer {
+  static expandBlock(block: BlockDefinition, buffer: Buffer, fill = 0, warnNotNormal = true): Buffer {
     const [normalBlock, totalLength, max] = BusUtil.normalizeBlock(block, warnNotNormal);
     if(buffer.length !== totalLength) { throw new Error('buffer length mismatch'); }
 
@@ -135,7 +135,7 @@ export class BusUtil {
       // console.log(index, 'PE', previousEnd, 'pL', padLength, 'dI', dataIndex, item, data)
       if(padLength < 0) { return data; }
 
-      const pad = Buffer.alloc(padLength, fillzero);
+      const pad = Buffer.alloc(padLength, fill);
 
       const result = Buffer.concat([pad, data]);
       // console.log('->',result)

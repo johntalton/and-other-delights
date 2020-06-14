@@ -1,9 +1,12 @@
 {
   "name": "@johntalton/and-other-delights",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "",
   "main": "lib/aod.js",
   "type": "commonjs",
+  "engines": {
+    "node": ">=8.0.0"
+  },
   "files": [
     "lib/**/*.js",
     "lib/**/*.d.ts",
@@ -95,6 +98,7 @@
     "eslint-plugin-mocha": "^7.0.1",
     "eslint-plugin-no-loops": "^0.3.0",
     "eslint-plugin-no-use-extend-native": "^0.5.0",
+    "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-security": "^1.4.0",
     "eslint-plugin-spellcheck": "0.0.17",

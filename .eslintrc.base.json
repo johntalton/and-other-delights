@@ -10,12 +10,11 @@
     "plugin:jsdoc/recommended"
   ],
   "parserOptions": {
-    "ecmaVersion": 9,
+    "ecmaVersion": 2020,
     "sourceType": "module"
   },
   "env": {
     "es6": true,
-    "node": true,
     "mocha": true
   },
   "plugins": [
@@ -120,23 +119,6 @@
     "no-undef-init": "error",
     "no-undefined": "off",
     "no-use-before-define": "error",
-
-
-
-    "callback-return": "error",
-    "global-require": "error",
-    "handle-callback-err": "error",
-    "no-buffer-constructor": "error",
-    "no-mixed-requires": "error",
-    "no-new-require": "error",
-    "no-path-concat": "error",
-    "no-process-env": "error",
-    "no-process-exit": "error",
-    "no-restricted-modules": "error",
-    "no-sync": "warn",
-
-
-
 
     "no-confusing-arrow": "error",
     "no-duplicate-imports": "error",
@@ -407,13 +389,13 @@
     "valid-typeof": "error",
 
     "spellcheck/spell-checker": [ "error", {
+      "ignoreRequire": true,
       "identifiers": false,
       "minLength": 3,
       "skipWords": [
         "johntalton",
         "todo", "const", "eslint",
-        "aod",
-        "readblock", "writeblock", "packmap", "packbits", "unpackbits", "mapbits", "fillmap", "fillzero"
+        "aod"
       ]
     }]
   }

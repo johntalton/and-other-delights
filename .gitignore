@@ -4,3 +4,4 @@ lib/
 lib/*.tsbuildinfo
 coverage/
 .nyc_output/
+aod.min.js

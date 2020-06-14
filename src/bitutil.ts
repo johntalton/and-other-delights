@@ -8,17 +8,22 @@ export const REVERSE_TRUE_8_PACKMAP = [0, 1, 2, 3, 4, 5, 6, 7];
 export type PackMap = Array<[number, number]|[number]|number>;
 export type NormalizedPackMap = Array<[number, number]>;
 
+const BIT_SIZE = 8;
+const NEGATIVE_ONE = -1;
+const ZERO = 0;
+const ONE = 1;
+
 /**
  *
  **/
 export class BitUtil {
   /**
-   * A utility to pack mulitple byte-parts into a single value.
-   *
+   * A utility to pack multiple byte-parts into a single value.
    * @param packmap The pack template to parse params by.
    * @param params The parameters to the pack map.
-   **/
-  static packbits(packmap: PackMap, ...params: Array<number>) {
+   * @returns Parameter bits packed into single byte.
+   */
+  static packbits(packmap: PackMap, ...params: Array<number>): number {
     return BitUtil._normalizePackmap(packmap)
       .reduce((accum, [position, length], idx) => {
         const mask = Math.pow(2, length) - 1;
@@ -29,12 +34,14 @@ export class BitUtil {
   }
 
   /**
-   *  A utility to split a value into its corisponding template parts.
+   *  A utility to split a value into its corresponding template parts.
    *
    * @param packmap A template by with to parse bits.
    * @param bits A value to be used to extract the template parts.
+   * @returns An array of bytes extracted from the bits parameter defined
+   *  by the packmap.
    **/
-  static unpackbits(packmap: PackMap, bits: number) {
+  static unpackbits(packmap: PackMap, bits: number): Array<number> {
     return BitUtil._normalizePackmap(packmap)
       .map(([position, length]) => {
         // console.log('unpacking', bits.toString(2), position, length);
@@ -54,10 +61,10 @@ export class BitUtil {
   static _normalizePackmap(packmap: PackMap): NormalizedPackMap {
     return packmap.map(item => {
       if(Array.isArray(item)) {
-        if(item.length !== 2) { console.log('sloppy packmap fomrat', item); return [item[0], 1]; }
+        if(item.length !== 2) { console.log('sloppy packmap format', item); return [item[0], 1]; }
         return item;
       }
-      console.log('sloppy packmap fomrat', item);
+      console.log('sloppy packmap format', item);
       return [item, 1];
     });
   }
@@ -65,47 +72,40 @@ export class BitUtil {
   // --------------
 
   static decodeTwos(twos: number, length: number) {
-    const smask = 1 << (length - 1);
+    const smask = ONE << (length - ONE);
     if((twos & smask) !== smask) { return twos; }
-    // this is a subtle way to coerce trunceated twos
-    // into sign extented js integer (without parseInt)
-    return -1 << length - 1 | twos;
+    // this is a subtle way to coerce truncated twos
+    // into sign extends js integer (without parseInt)
+    return NEGATIVE_ONE << length - ONE | twos;
   }
 
-  static reconstructNbit(nbit: number, ...parts: number[]) {
-    //console.log('nbit', nbit, parts);
-
-    // the 10 and 12 bit cases are primary use cases
-    // where the last parts passed
-    //if(nbit === 10) { return (msb << 2) | lsb; }
-    //if(nbit === 12) { return (msb << 4) | lsb; }
-
-    // todo, this does not follow the pattern of the above
-    // shift up and use the low bit of the xlsb as the remaining
-    // bits.  Instead it uses the xlsb high order bits as the
-    // remaing bits that need to be shifted down.  however, this
+  static reconstructNbit(nbit: number, ...parts: number[]): number {
+    // 20-bit does not follow the pattern of the above
+    // shift up and use the low bit of the part as the remaining
+    // bits.  Instead it uses the parts high order bits as the
+    // remaining bits that need to be shifted down.  however, this
     // comes from a single implementation caller that may have its
-    // byte read incorrect, or may have been calculated inaccuratly
+    // byte read incorrect, or may have been calculated inaccurately
     if(nbit === 20) {
       const [msb, lsb, xlsb] = parts;
       return ((msb << 8 | lsb) << 8 | xlsb) >> 4;
     }
 
-    const BIT_SIZE = 8;
+    // generic algorithm for N-Bit reconstruction
     return parts.map((part, index) => {
-       const shift = nbit - (BIT_SIZE * (index + 1));
-       if(shift < 0) {
-         const size = BIT_SIZE + shift; // not addition is negative subtraction
-         const mask = Math.pow(2, size) - 1;
-         //console.log('last part #', index, shift, size, mask, part);
-         return part & mask;
-       }
+      const shift = nbit - (BIT_SIZE * (index + ONE));
+      if(shift < 0) {
+        const size = BIT_SIZE + shift; // not addition is negative subtraction
+        const mask = Math.pow(2, size) - ONE;
+        // console.log('last part #', index, shift, size, mask, part);
+        return part & mask;
+      }
 
-       const mask = Math.pow(2, BIT_SIZE) - 1;
-       //console.log('part #', index, shift, mask, part);
-       return (part & mask) << shift;
+      const mask = Math.pow(2, BIT_SIZE) - ONE;
+      // console.log('part #', index, shift, mask, part);
+      return (part & mask) << shift;
     })
-    .reduce((acc, part) => acc | part, 0);
+    .reduce((acc, part) => acc | part, ZERO);
   }
 
   static reconstruct10bit(msb: number, lsb_2bit: number) { return BitUtil.reconstructNbit(10, msb, lsb_2bit); }

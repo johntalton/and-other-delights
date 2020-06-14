@@ -1,0 +1,5 @@
+{
+    "extends": [
+        "./.Xeslintrc.base.json"
+    ]
+  }

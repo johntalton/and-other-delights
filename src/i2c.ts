@@ -1,4 +1,3 @@
-/* eslint-disable import/group-exports */
 //
 export interface I2CReadResult {
   bytesRead: number;
@@ -13,12 +12,13 @@ export interface I2CWriteResult {
 
 //
 export type I2CAddress = number;
+export type I2CBusNumber = number;
 
 /**
  *
  **/
 export interface I2CBus {
-  readonly busNumber: number;
+  readonly busNumber: I2CBusNumber;
 
   close(): void;
 

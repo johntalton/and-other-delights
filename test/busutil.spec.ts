@@ -5,6 +5,8 @@ import { expect } from 'chai';
 import { BusUtil, I2CAddressedBus } from './aod';
 import { EOS_SCRIPT, Script, ScriptBus } from './helper.scriptbus';
 
+const SCRIPT_BUS_NUMBER = 1;
+
 const READ_SINGLE_SCRIPT: Script = [
   { method: 'readI2cBlock', parameters: [0x37], result: { bytesRead: 2, buffer: Buffer.from([3, 5]) } },
   ...EOS_SCRIPT
@@ -36,40 +38,40 @@ describe('BusUtil', () => {
 
   describe('#readblock', () => {
     it('should return empty on empty block read', async () => {
-      const result = await BusUtil.readblock(new I2CAddressedBus(ScriptBus.from(EOS_SCRIPT), 0x00), []);
+      const result = await BusUtil.readblock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, EOS_SCRIPT), 0x00), []);
       expect(result).to.deep.equal(Buffer.from([]));
     });
 
     it('should read a simple block', async () => {
-      const result = await BusUtil.readblock(new I2CAddressedBus(ScriptBus.from(READ_SINGLE_SCRIPT), 0x00), [[0, 2]]);
+      const result = await BusUtil.readblock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, READ_SINGLE_SCRIPT), 0x00), [[0, 2]]);
       expect(result).to.deep.equal(Buffer.from([3, 5]));
     });
 
     it('should read a multi block', async () => {
-      const result = await BusUtil.readblock(new I2CAddressedBus(ScriptBus.from(READ_MULTI_SCRIPT), 0x00), [[0x37, 2], [0x42, 4]]);
+      const result = await BusUtil.readblock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, READ_MULTI_SCRIPT), 0x00), [[0x37, 2], [0x42, 4]]);
       expect(result).to.deep.equal(Buffer.from([3, 5, 7, 9, 11, 13]));
     });
 
     it('should error when bus layer errors', () => {
-      expect(() => BusUtil.readblock(new I2CAddressedBus(ScriptBus.from(READ_MULTI_SCRIPT), 0x00), [[0x37, 2], [0x42, 4], [0x77, 2]])).to.throw();
+      expect(() => BusUtil.readblock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, READ_MULTI_SCRIPT), 0x00), [[0x37, 2], [0x42, 4], [0x77, 2]])).to.throw();
     });
   });
 
   describe('#writeblock', () => {
     it('should write empty on empty block', async () => {
-      await BusUtil.writeblock(new I2CAddressedBus(ScriptBus.from(EOS_SCRIPT), 0x00), [], Buffer.from([]));
+      await BusUtil.writeblock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, EOS_SCRIPT), 0x00), [], Buffer.from([]));
     });
 
     it('should write simple byte single block', async () => {
-      await BusUtil.writeblock(new I2CAddressedBus(ScriptBus.from(WRITE_SINGLE_SCRIPT), 0x00), [[0x01, 1]], Buffer.from([0, 3]));
+      await BusUtil.writeblock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, WRITE_SINGLE_SCRIPT), 0x00), [[0x01, 1]], Buffer.from([0, 3]));
     });
 
     it('should write simple block', async () => {
-      await BusUtil.writeblock(new I2CAddressedBus(ScriptBus.from(WRITE_SINGLE_SCRIPT), 0x00), [[0x01, 2]], Buffer.from([0, 3, 5]));
+      await BusUtil.writeblock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, WRITE_SINGLE_SCRIPT), 0x00), [[0x01, 2]], Buffer.from([0, 3, 5]));
     });
 
     it('should write multi block', async () => {
-      await BusUtil.writeblock(new I2CAddressedBus(ScriptBus.from(WRITE_MULTI_SCRIPT), 0x00), [[0x01, 2], [0x4, 4]], Buffer.from([0, 3, 5, 0, 7, 9, 11, 13]));
+      await BusUtil.writeblock(new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, WRITE_MULTI_SCRIPT), 0x00), [[0x01, 2], [0x4, 4]], Buffer.from([0, 3, 5, 0, 7, 9, 11, 13]));
     });
   });
 

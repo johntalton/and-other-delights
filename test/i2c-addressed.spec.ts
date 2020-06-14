@@ -1,8 +1,11 @@
-import 'mocha';
+import { describe, it } from 'mocha';
 import { expect } from 'chai';
 
+import { EOS_SCRIPT, Script, ScriptBus } from './helper.scriptbus';
 import { I2CAddressedBus } from './aod';
-import { ScriptBus, Script, EOS_SCRIPT } from './helper.scriptbus';
+
+const SCRIPT_BUS_NUMBER = 1;
+const SCRIPT_BUS_ADDRESS = 0x00;
 
 const SCRIPT: Script = [
   ...EOS_SCRIPT
@@ -14,12 +17,12 @@ const CLOSE_SCRIPT: Script = [
 ];
 
 const READ_SCRIPT: Script = [
-  { method: 'readI2cBlock', result: { bytesRead: 2, buffer: Buffer.from([3,5]) } },
+  { method: 'readI2cBlock', result: { bytesRead: 2, buffer: Buffer.from([3, 5]) } },
   ...CLOSE_SCRIPT
 ];
 
 const WRITE_SCRIPT: Script = [
-  { method: 'writeI2cBlock', result: { bytesWritten: 2, buffer: Buffer.from([3,5]) } },
+  { method: 'writeI2cBlock', result: { bytesWritten: 2, buffer: Buffer.from([3, 5]) } },
   ...CLOSE_SCRIPT
 ];
 
@@ -31,62 +34,72 @@ const SPECIAL_SCRIPT: Script = [
 describe('I2CAddressedBus', () => {
   describe('#name', () => {
     it('should return name', () => {
-      expect(new I2CAddressedBus(ScriptBus.from(SCRIPT), 0x00).name).to.equal('i2c:/dev/i2c--1/0x0');
+      const sb = ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, SCRIPT);
+      const ab = new I2CAddressedBus(sb, SCRIPT_BUS_ADDRESS);
+      expect(ab.name).to.equal('i2c:/dev/i2c--1/0x0');
     });
   });
 
   describe('#bus', () => {
     it('should return the bus', () => {
-      const sb = ScriptBus.from(SCRIPT);
-      const ab = new I2CAddressedBus(sb, 0x00);
+      const sb = ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, SCRIPT);
+      const ab = new I2CAddressedBus(sb, SCRIPT_BUS_ADDRESS);
       expect(ab.bus).to.equal(sb);
     });
   });
 
   describe('#address', () => {
     it('should return address', () => {
-      const ab = new I2CAddressedBus(ScriptBus.from(SCRIPT), 0x37);
+      const ab = new I2CAddressedBus(ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, SCRIPT), 0x37);
       expect(ab.address).to.equal(0x37);
     });
   });
 
   describe('#close', () => {
     it('should close gracefully', () => {
-      const ab = new I2CAddressedBus(ScriptBus.from(CLOSE_SCRIPT), 0x00);
+      const sb = ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, CLOSE_SCRIPT);
+      const ab = new I2CAddressedBus(sb, SCRIPT_BUS_ADDRESS);
       expect(() => ab.close()).to.not.throw();
     });
   });
 
   describe('#read', () => {
     it('should read bytes', async () => {
-      const ab = new I2CAddressedBus(ScriptBus.from(READ_SCRIPT), 0x00);
-      expect(await ab.read(0x02, 2)).to.deep.equal(Buffer.from([3,5]))
+      const sb = ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, READ_SCRIPT);
+      const ab = new I2CAddressedBus(sb, SCRIPT_BUS_ADDRESS);
+      expect(await ab.read(0x02, 2)).to.deep.equal(Buffer.from([3, 5]));
     });
   });
 
   describe('#write', () => {
-    it('should write bytes', async () => {
-      const ab = new I2CAddressedBus(ScriptBus.from(WRITE_SCRIPT), 0x00);
-      expect(() => ab.write(0x01, Buffer.from([3,5,7]))).to.not.throw();
+    it('should write bytes', () => {
+      const sb = ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, WRITE_SCRIPT);
+      const ab = new I2CAddressedBus(sb, SCRIPT_BUS_ADDRESS);
+      expect(() => ab.write(0x01, Buffer.from([3, 5, 7]))).to.not.throw();
     });
   });
 
-  describe('#writeSpecial', async () => {
+  describe('#writeSpecial', () => {
     it('should', () => {
-      const ab = new I2CAddressedBus(ScriptBus.from(SPECIAL_SCRIPT), 0x00);
+      const sb = ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, SPECIAL_SCRIPT);
+      const ab = new I2CAddressedBus(sb, SCRIPT_BUS_ADDRESS);
       expect(() => ab.writeSpecial(42)).to.not.throw();
     });
   });
 
   describe('#readBuffer', () => {
-    it('should', () => {
-      new I2CAddressedBus(ScriptBus.from(SCRIPT), 0x00)
+    it('should', async () => {
+      const sb = ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, SCRIPT);
+      const ab = new I2CAddressedBus(sb, 0x00);
+      const buffer = await ab.readBuffer(7);
+      expect(buffer).to.deep.equal(Buffer.from([]));
     });
   });
 
   describe('#writeBuffer', () => {
     it('should', () => {
-      new I2CAddressedBus(ScriptBus.from(SCRIPT), 0x00)
+      const sb = ScriptBus.openPromisified(SCRIPT_BUS_NUMBER, SCRIPT);
+      const ab = new I2CAddressedBus(sb, 0x00);
     });
   });
 });

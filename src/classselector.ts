@@ -7,7 +7,7 @@ export class ClassSelector<S, R> {
   private inval: S;
   private result?: R;
 
-  static from<S>(inval: S) {
+  static from<S, R>(inval: S): ClassSelector<S, R> {
     return new ClassSelector(inval);
   }
 
@@ -16,12 +16,12 @@ export class ClassSelector<S, R> {
     this.result = undefined;
   }
 
-  on(condition: SelectorFunc<S, R>, result: R) {
+  on(condition: SelectorFunc<S, R>, result: R): ClassSelector<S, R> {
     if(condition(this.inval, this.result)) { this.result = result; }
     return this;
   }
 
-  catch(eresult: R) {
+  catch(eresult: R): R {
     return this.result !== undefined ? this.result : eresult;
   }
 }

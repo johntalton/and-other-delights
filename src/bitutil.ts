@@ -12,6 +12,7 @@ const BIT_SIZE = 8;
 const NEGATIVE_ONE = -1;
 const ZERO = 0;
 const ONE = 1;
+const TWO = 2;
 
 /**
  *
@@ -27,9 +28,9 @@ export class BitUtil {
   static packBits(packMap: PackMap, params: Array<number>): number {
     return BitUtil._normalizePackmap(packMap)
       .reduce((accum, [position, length], idx) => {
-        const mask = Math.pow(2, length) - 1;
+        const mask = Math.pow(TWO, length) - ONE;
         const value = params[idx] & mask;
-        const shift = position + 1 - length;
+        const shift = position + ONE - length;
         return (accum & ~(mask << shift)) | (value << shift);
       }, ZERO);
   }

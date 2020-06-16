@@ -25,62 +25,42 @@ export class ScriptBus implements I2CBus {
     this.script = script;
   }
 
-  close(): void {
+  private validate(name: string): ScriptEntry {
     const scriptNode = this.script[this.scriptIndex];
     if(scriptNode.method === 'throw') { throw new Error(scriptNode.result as string); }
-    if(scriptNode.method !== 'close') {
+    if(scriptNode.method !== name) {
       throw new Error('invalid script step #' + this.scriptIndex);
     }
     this.scriptIndex += 1;
+    return scriptNode;
+  }
+
+  close(): void {
+    this.validate('close');
   }
 
   sendByte(address: I2CAddress, byte: number): Promise<void> {
-    const scriptNode = this.script[this.scriptIndex];
-    if(scriptNode.method === 'throw') { throw new Error(scriptNode.result as string); }
-    if(scriptNode.method !== 'sendByte') {
-      throw new Error('invalid script step #' + this.scriptIndex);
-    }
-    this.scriptIndex += 1;
+    this.validate('sendByte');
     return Promise.resolve();
   }
 
   readI2cBlock(address: number, cmd: number, length: number, buffer: Buffer): Promise<I2CReadResult> {
-    const scriptNode = this.script[this.scriptIndex];
-    if(scriptNode.method === 'throw') { throw new Error(scriptNode.result as string); }
-    if(scriptNode.method !== 'readI2cBlock') {
-      throw new Error('invalid script step #' + this.scriptIndex);
-    }
-    this.scriptIndex += 1;
+    const scriptNode = this.validate('readI2cBlock');
     return Promise.resolve(scriptNode.result as I2CReadResult);
   }
 
   writeI2cBlock(address: number, cmd: number, length: number, buffer: Buffer): Promise<I2CWriteResult> {
-    const scriptNode = this.script[this.scriptIndex];
-    if(scriptNode.method === 'throw') { throw new Error(scriptNode.result as string); }
-    if(scriptNode.method !== 'writeI2cBlock') {
-      throw new Error('invalid script step #' + this.scriptIndex);
-    }
-    this.scriptIndex += 1;
+    const scriptNode = this.validate('writeI2cBlock');
     return Promise.resolve(scriptNode.result as I2CWriteResult);
   }
 
   i2cRead(address: number, length: number, buffer: Buffer): Promise<I2CReadResult> {
-    const scriptNode = this.script[this.scriptIndex];
-    if(scriptNode.method === 'throw') { throw new Error(scriptNode.result as string); }
-    if(scriptNode.method !== 'i2cRead') {
-      throw new Error('invalid script step #' + this.scriptIndex);
-    }
-    this.scriptIndex += 1;
+    const scriptNode = this.validate('i2cRead');
     return Promise.resolve(scriptNode.result as I2CReadResult);
   }
 
   i2cWrite(address: number, length: number, buffer: Buffer): Promise<I2CWriteResult> {
-    const scriptNode = this.script[this.scriptIndex];
-    if(scriptNode.method === 'throw') { throw new Error(scriptNode.result as string); }
-    if(scriptNode.method !== 'i2cWrite') {
-      throw new Error('invalid script step #' + this.scriptIndex);
-    }
-    this.scriptIndex += 1;
+    const scriptNode = this.validate('i2cWrite');
     return Promise.resolve(scriptNode.result as I2CWriteResult);
   }
 }

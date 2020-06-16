@@ -1,9 +1,14 @@
 {
   "name": "@johntalton/and-other-delights",
+  "private": true,
   "version": "3.0.0",
   "description": "",
   "main": "lib/aod.js",
-  "type": "module",
+  "exports": {
+    "import": "./lib/aod.js",
+    "require": "./lib/aod.js"
+  },
+  "type": "commonjs",
   "engines": {
     "node": ">=12.0.0"
   },
@@ -24,7 +29,6 @@
     "build": "tsc -p .",
     "build:watch": "npm run build -- -w",
     "test:mocha": "mocha",
-    "main": "node lib/index",
     "coverage": "npm --silent run coverage:nyc",
     "coverage:nyc": "nyc npm --silent run test:mocha",
     "coverage:c8": "c8 --check-coverage npm --silent run test:mocha",
@@ -60,10 +64,10 @@
   },
   "nyc": {
     "extends": "@istanbuljs/nyc-config-typescript",
-    "all": false,
+    "all": true,
     "check-coverage": true,
     "require": [
-      "ts-node/register",
+      "ts-node/register/transpile-only",
       "source-map-support/register"
     ],
     "instrument": true,

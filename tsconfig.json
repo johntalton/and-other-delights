@@ -5,8 +5,8 @@
         "incremental": true,
         "watch": false,
 
-        "target": "ES2019",
-        "module": "ESNext",
+        "target": "ESNext",
+        "module": "CommonJS",
         "lib": ["ESNext"],
 
         "strict": true,

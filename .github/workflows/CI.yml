@@ -6,6 +6,25 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@2.3.0
+      - uses: actions/setup-node@2.0.0
+        with:
+          node-version: 14.x
+      - uses: actions/upload-artifact@2
+        with:
+          name: lib
+          path: lib/
+      - uses: actions/upload-artifact@2
+        with:
+          name: aod.min
+          path: aod.min*
+      - run: npm install
+      - run: npm run build
+      - run: npm run format
+  test:
+    needs: build
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [10, 12, 14]
@@ -14,6 +33,9 @@ jobs:
     - uses: actions/setup-node@v2.0.0
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm install
-    - run: npm run build
+    - uses: actions/download-artifact@2
+      with:
+        name: lib
+        path: lib
+    - run: npm run lint
     - run: npm run coverage

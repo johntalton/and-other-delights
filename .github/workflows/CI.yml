@@ -37,5 +37,6 @@ jobs:
         with:
           name: lib
           path: lib
+      - run: npm install
       - run: npm run lint
       - run: npm run coverage

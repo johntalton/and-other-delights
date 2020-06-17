@@ -34,7 +34,8 @@
     "coverage": "npm --silent run coverage:nyc",
     "coverage:nyc": "nyc npm --silent run test:mocha -- --reporter min",
     "coverage:c8": "c8 --check-coverage npm --silent run test:mocha -- --no-parallel --reporter min",
-    "audit": "auditjs ossi --dev"
+    "audit": "auditjs ossi --dev",
+    "clean": "rm -rf .nyc_output coverage lib node_modules package-lock.json"
   },
   "mocha": {
     "spec": [

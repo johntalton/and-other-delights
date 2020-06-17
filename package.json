@@ -33,9 +33,9 @@
     "test:mocha": "mocha",
     "coverage": "npm --silent run coverage:nyc",
     "coverage:nyc": "nyc npm --silent run test:mocha -- --reporter min",
-    "coverage:c8": "c8 --check-coverage npm --silent run test:mocha -- --no-parallel --reporter min",
+    "coverage:c8": "c8 --check-coverage --all --lines 75 --functions 5 --branches 85 npm --silent run test:mocha -- --no-parallel --reporter min",
     "audit": "auditjs ossi --dev",
-    "clean": "rm -rf .nyc_output coverage lib node_modules package-lock.json"
+    "clean": "rm -rf .nyc_output coverage lib node_modules package-lock.json aod.min.js aod.min.js.map"
   },
   "mocha": {
     "spec": [
@@ -43,24 +43,23 @@
     ],
     "grep": "@broken|@slow",
     "invert": true,
-
     "parallel": true,
     "slow": 2,
     "timeout": 21,
-
     "watch": false,
-
     "sort": false,
     "forbitOnly": true,
     "check-leaks": true,
     "global": [],
-
     "require": [
       "source-map-support/register",
       "ts-node/register/transpile-only"
     ]
   },
   "nyc": {
+    "branches": 35,
+    "lines": 60,
+
     "extends": "@istanbuljs/nyc-config-typescript",
     "all": true,
     "check-coverage": true,

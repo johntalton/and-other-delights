@@ -64,6 +64,7 @@ export class I2CAddressedBus implements I2CManagedBus {
     if(!Buffer.isBuffer(buffer)) { throw new Error('buffer is not a buffer'); }
     if(buffer.length > WARN_WRITE_LENGTH) { console.log('over max recommend w length'); }
     return this._bus.writeI2cBlock(this._address, cmd, buffer.length, buffer)
+      // eslint-disable-next-line no-useless-return
       .then(({ bytesWritten }) => { return; }); // todo bytesWritten
   }
 
@@ -78,6 +79,7 @@ export class I2CAddressedBus implements I2CManagedBus {
 
   writeBuffer(buffer: Buffer): Promise<void> {
     return this._bus.i2cWrite(this._address, buffer.length, buffer)
+      // eslint-disable-next-line no-useless-return
       .then(({ bytesWritten }) => { return; }); // todo bytesWritten
   }
 }

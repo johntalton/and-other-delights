@@ -1,3 +1,4 @@
+/* eslint-disable spellcheck/spell-checker */
 // main entry point into this library
 export { BitUtil, PackMap } from './bitutil';
 export { BusUtil } from './busutil';

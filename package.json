@@ -20,7 +20,7 @@
   ],
   "types": "lib/aod.d.ts",
   "scripts": {
-    "lint": "npm run lint:ts",
+    "lint": "npm --silent run lint:ts",
     "lint:ts": "./node_modules/.bin/eslint --ext .ts src/*.ts",
     "lint:js": "./node_modules/.bin/eslint -c .eslintrc.js.json lib/*.js",
     "format:beauty": "js-beautify --good-stuff -j --indent-size 2 --space-in-empty-paren ./lib/*.js",
@@ -28,39 +28,35 @@
     "format:x-standard": "./node_modules/.bin/standard -v --fix ./lib/*.js",
     "build": "tsc -p .",
     "build:watch": "npm run build -- -w",
+    "test": "npm run test:mocha",
     "test:mocha": "mocha",
     "coverage": "npm --silent run coverage:nyc",
-    "coverage:nyc": "nyc npm --silent run test:mocha",
-    "coverage:c8": "c8 --check-coverage npm --silent run test:mocha",
+    "coverage:nyc": "nyc npm --silent run test:mocha -- --reporter min",
+    "coverage:c8": "c8 --check-coverage npm --silent run test:mocha -- --no-parallel --reporter min",
     "audit": "auditjs ossi --dev"
   },
-  "eslintConfig": {
-    "rules": {
-      "max-len": [
-        "error",
-        {
-          "code": 20
-        }
-      ]
-    }
-  },
   "mocha": {
-    "timeout": 1,
-    "require": [
-      "source-map-support/register",
-      "ts-node/register/transpile-only"
-    ],
     "spec": [
       "test/*.spec.ts"
     ],
-    "reporter": [
-      "min"
-    ],
+    "grep": "@broken|@slow",
+    "invert": true,
+
+    "parallel": true,
+    "slow": 2,
+    "timeout": 21,
+
+    "watch": false,
+
+    "sort": false,
+    "forbitOnly": true,
     "check-leaks": true,
     "global": [],
-    "recursive": true,
-    "sort": true,
-    "watch": false
+
+    "require": [
+      "source-map-support/register",
+      "ts-node/register/transpile-only"
+    ]
   },
   "nyc": {
     "extends": "@istanbuljs/nyc-config-typescript",

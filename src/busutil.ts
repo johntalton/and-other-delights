@@ -88,7 +88,7 @@ export class BusUtil {
    * interrupted or delayed by other bus activity.
    **/
   static writeBlock(bus: I2CAddressedBus, block: BlockDefinition, buffer: Buffer, warnNotNormal = true): Promise<void> {
-    const [normalBlock, totalLength, max] = BusUtil.normalizeBlock(block);
+    const [normalBlock, totalLength, max] = BusUtil.normalizeBlock(block, warnNotNormal);
     // console.log('writeBlock', block, buffer, totalLength, max)
     if(max > buffer.length) { throw new Error('max address is outside buffer length'); }
 

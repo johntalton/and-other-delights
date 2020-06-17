@@ -14,6 +14,10 @@ const ZERO = 0;
 const ONE = 1;
 const TWO = 2;
 
+const TEN = 10;
+const TWELVE = 12;
+const TWENTY = 20;
+
 /**
  *
  **/
@@ -23,10 +27,11 @@ export class BitUtil {
    *
    * @param packMap The pack template to parse params by.
    * @param params The parameters to the packMap.
+   * @param warnNotNormal If true will log out when non-normal packMap exists.
    * @returns Parameter bits packed into single byte.
    */
-  static packBits(packMap: PackMap, params: Array<number>): number {
-    return BitUtil._normalizePackmap(packMap)
+  static packBits(packMap: PackMap, params: Array<number>, warnNotNormal = true): number {
+    return BitUtil._normalizePackMap(packMap, warnNotNormal)
       .reduce((accum, [position, length], idx) => {
         const mask = Math.pow(TWO, length) - ONE;
         const value = params[idx] & mask;
@@ -40,11 +45,12 @@ export class BitUtil {
    *
    * @param packMap A template by with to parse bits.
    * @param bits A value to be used to extract the template parts.
+   * @param warnNotNormal If true will log out when non-normal format exists.
    * @returns An array of bytes extracted from the bits parameter defined
    *  by the packMap.
    **/
-  static unpackBits(packMap: PackMap, bits: number): Array<number> {
-    return BitUtil._normalizePackmap(packMap)
+  static unpackBits(packMap: PackMap, bits: number, warnNotNormal = true): Array<number> {
+    return BitUtil._normalizePackMap(packMap, warnNotNormal)
       .map(([position, length]) => {
         // console.log('unpacking', bits.toString(2), position, length);
         return BitUtil._readBits(bits, position, length);
@@ -63,13 +69,16 @@ export class BitUtil {
     return (bits >> shift) & mask;
   }
 
-  static _normalizePackmap(packmap: PackMap): NormalizedPackMap {
-    return packmap.map(item => {
+  static _normalizePackMap(packMap: PackMap, warnStrict = true): NormalizedPackMap {
+    return packMap.map(item => {
       if(Array.isArray(item)) {
-        if(item.length !== 2) { console.log('sloppy packMap format', item); return [item[0], 1]; }
+        if(item.length !== 2) {
+          if(warnStrict) { console.log('sloppy packMap format', item); }
+          return [item[0], 1];
+        }
         return item;
       }
-      console.log('sloppy packMap format', item);
+      if(warnStrict) { console.log('sloppy packMap format', item); }
       return [item, 1];
     });
   }
@@ -113,7 +122,7 @@ export class BitUtil {
     .reduce((acc, part) => acc | part, ZERO);
   }
 
-  static reconstruct10bit(msb: number, lsb_2bit: number) { return BitUtil.reconstructNBit(10, [msb, lsb_2bit]); }
-  static reconstruct12bit(msb: number, lsb_4bit: number) { return BitUtil.reconstructNBit(12, [msb, lsb_4bit]); }
-  static reconstruct20bit(msb: number, lsb: number, xlsb: number) { return BitUtil.reconstructNBit(20, [msb, lsb, xlsb]); }
+  static reconstruct10bit(msb: number, lsb_2bit: number): number { return BitUtil.reconstructNBit(TEN, [msb, lsb_2bit]); }
+  static reconstruct12bit(msb: number, lsb_4bit: number): number { return BitUtil.reconstructNBit(TWELVE, [msb, lsb_4bit]); }
+  static reconstruct20bit(msb: number, lsb: number, xlsb: number): numnber { return BitUtil.reconstructNBit(TWENTY, [msb, lsb, xlsb]); }
 }

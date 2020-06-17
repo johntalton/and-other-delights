@@ -124,5 +124,5 @@ export class BitUtil {
 
   static reconstruct10bit(msb: number, lsb_2bit: number): number { return BitUtil.reconstructNBit(TEN, [msb, lsb_2bit]); }
   static reconstruct12bit(msb: number, lsb_4bit: number): number { return BitUtil.reconstructNBit(TWELVE, [msb, lsb_4bit]); }
-  static reconstruct20bit(msb: number, lsb: number, xlsb: number): numnber { return BitUtil.reconstructNBit(TWENTY, [msb, lsb, xlsb]); }
+  static reconstruct20bit(msb: number, lsb: number, xlsb: number): number { return BitUtil.reconstructNBit(TWENTY, [msb, lsb, xlsb]); }
 }

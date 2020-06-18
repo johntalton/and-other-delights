@@ -9,14 +9,14 @@ export const EOS_SCRIPT: Script = [
 /**
  *
  */
-export class ScriptBus implements I2CBus {
+export class I2CScriptBus implements I2CBus {
   readonly busNumber: I2CBusNumber;
 
   private script: Script;
   private scriptIndex: number;
 
   static openPromisified(busNumber: I2CBusNumber, script: Script): I2CBus {
-    return new ScriptBus(busNumber, script);
+    return new I2CScriptBus(busNumber, script);
   }
 
   constructor(busNumber: I2CBusNumber, script: Script) {

@@ -27,6 +27,10 @@ export class I2CAddressedBus implements I2CManagedBus {
   private _bus: I2CBus;
   private _sharedReadBuffer?: Buffer;
 
+  static from(i2cBus: I2CBus, address: I2CAddress): Promise<I2CManagedBus> {
+    return Promise.resolve(new I2CAddressedBus(i2cBus, address));
+  }
+
   constructor(i2cBus: I2CBus, address: I2CAddress, sharedReadBuffer?: Buffer) {
     this._address = address;
     this._bus = i2cBus;

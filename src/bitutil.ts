@@ -18,23 +18,38 @@ const TEN = 10;
 const TWELVE = 12;
 const TWENTY = 20;
 
+const DEFAULT_LENGTH = ONE;
+
 /**
  *
  **/
 export class BitUtil {
   /**
+   * Creates a bit-mask of the given length.
+   *
+   * @param length The masks length in bits.
+   * @returns A mask of the specified length.
+   */
+
+  private static mask(length: number) {
+    // if(length === 0) { return 0; }
+    // if(length === 8) { return 0; }
+    return Math.pow(TWO, length) - ONE;
+  }
+
+  /**
    * A utility to pack multiple byte-parts into a single value.
    *
    * @param packMap The pack template to parse params by.
-   * @param params The parameters to the packMap.
+   * @param sourceData The parameters to the packMap.
    * @param warnNotNormal If true will log out when non-normal packMap exists.
    * @returns Parameter bits packed into single byte.
    */
-  static packBits(packMap: PackMap, params: Array<number>, warnNotNormal = true): number {
-    return BitUtil._normalizePackMap(packMap, warnNotNormal)
+  static packBits(packMap: PackMap, sourceData: Array<number>, warnNotNormal = true): number {
+    return BitUtil.normalizePackMap(packMap, warnNotNormal)
       .reduce((accum, [position, length], idx) => {
-        const mask = Math.pow(TWO, length) - ONE;
-        const value = params[idx] & mask;
+        const mask = BitUtil.mask(length);
+        const value = sourceData[idx] & mask;
         const shift = position + ONE - length;
         return (accum & ~(mask << shift)) | (value << shift);
       }, ZERO);
@@ -50,37 +65,85 @@ export class BitUtil {
    *  by the packMap.
    **/
   static unpackBits(packMap: PackMap, bits: number, warnNotNormal = true): Array<number> {
-    return BitUtil._normalizePackMap(packMap, warnNotNormal)
+    return BitUtil.normalizePackMap(packMap, warnNotNormal)
       .map(([position, length]) => {
         // console.log('unpacking', bits.toString(2), position, length);
-        return BitUtil._readBits(bits, position, length);
+        return BitUtil.mapBits(bits, position, length);
       });
   }
 
   // position if from left->right with zero index
-  static mapBits(bits: number, position: number, length: number): number {
-    return BitUtil._readBits(bits, position, length);
-  }
-
-  static _readBits(bits: number, position: number, length: number): number {
-    const shift = position - length + 1;
-    const mask = Math.pow(2, length) - 1;
-    // console.log('_readBits', bits.toString(2), position, length, shift, mask);
+  private static mapBits(bits: number, position: number, length: number): number {
+    const shift = position - length + ONE;
+    const mask = BitUtil.mask(length);
     return (bits >> shift) & mask;
   }
 
-  static _normalizePackMap(packMap: PackMap, warnStrict = true): NormalizedPackMap {
-    return packMap.map(item => {
+  private static isNonOverlapping(normalPackMap: NormalizedPackMap): boolean {
+    return true;
+  }
+
+  private static isOrdered(normalPackMap: NormalizedPackMap): boolean {
+    return true;
+  }
+
+  /**
+   * Validates and returns explicitly array of two number arrays.
+   *
+   * All user facing methods should call this before working with
+   * user supplied packMap templates.
+   *
+   * @param packMap A template to process.
+   * @param warnStrict If true will log out when non-normal format exists.
+   * @returns A packMap with explicitly defined values.
+   */
+  private static normalizePackMap(packMap: PackMap, warnStrict = true): NormalizedPackMap {
+    function formatE(kind: string, item?: any) {
+      return `invalid packMap format (${kind}): ${JSON.stringify(item)}`;
+    }
+
+    const normalPackMap: NormalizedPackMap = packMap.map(item => {
       if(Array.isArray(item)) {
-        if(item.length !== 2) {
-          if(warnStrict) { console.log('sloppy packMap format', item); }
-          return [item[0], 1];
+        // array must have at least one item
+        if(item.length <= 0) {
+          throw new Error(formatE('zero', item));
         }
-        return item;
+
+        // if it only has on item, then its assumed length is one
+        if(item.length === 1) {
+          if(warnStrict) { console.log('sloppy packMap format', item); }
+          const [first] = item;
+          return [first, DEFAULT_LENGTH];
+        }
+
+        //
+        if(item.length > 2) {
+          throw new Error(formatE('gt 2', item));
+        }
+
+        // otherwise, its already normal
+        const [offset, length] = item;
+        if(!Number.isInteger(offset)) { throw new Error(formatE('offset', offset)); }
+        if(!Number.isInteger(length)) { throw new Error(formatE('length', length)); }
+        return [offset, length];
+
+      } else if(Number.isInteger(item)) {
+        if(warnStrict) { console.log('sloppy packMap format', item); }
+        return [item, DEFAULT_LENGTH];
       }
-      if(warnStrict) { console.log('sloppy packMap format', item); }
-      return [item, 1];
+
+      throw new Error(formatE('type', item));
     });
+
+    if(!BitUtil.isOrdered(normalPackMap)) {
+      if(warnStrict) { console.log('sloppy packMap format (order)'); }
+    }
+
+    if(!BitUtil.isNonOverlapping(normalPackMap)) {
+      throw new Error(formatE('overlapping'));
+    }
+
+    return normalPackMap;
   }
 
   // --------------
@@ -110,12 +173,12 @@ export class BitUtil {
       const shift = nbit - (BIT_SIZE * (index + ONE));
       if(shift < 0) {
         const size = BIT_SIZE + shift; // not addition is negative subtraction
-        const mask = Math.pow(2, size) - ONE;
+        const mask = BitUtil.mask(size);
         // console.log('last part #', index, shift, size, mask, part);
         return part & mask;
       }
 
-      const mask = Math.pow(2, BIT_SIZE) - ONE;
+      const mask = BitUtil.mask(BIT_SIZE);
       // console.log('part #', index, shift, mask, part);
       return (part & mask) << shift;
     })

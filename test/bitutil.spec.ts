@@ -4,11 +4,65 @@ import { describe, it } from 'mocha';
 import { expect } from 'chai';
 
 // eslint-disable-next-line sort-imports
-import { BitUtil } from './aod';
+import { BitUtil, PackMap } from './aod';
 
 describe('BitUtil', () => {
   describe('#packBits', () => {
     //
+    it('should run README example', () => {
+      const source = [1, 3, 2];
+      const template: PackMap = [ [6, 1], [5, 3], [1, 2] ];
+      const expected = 0b0_1_011_0_10;
+      const outRegister = BitUtil.packBits(template, source);
+      expect(outRegister).to.equal(expected);
+    });
+
+    it('should run README example second half', () => {
+      const inRegister = 0x5A;
+      const template: PackMap = [ [6, 1], [5, 3], [1, 2] ];
+      const [one, three, two] = BitUtil.unpackBits(template, inRegister);
+      expect(one).to.equal(1);
+      expect(two).to.equal(2);
+      expect(three).to.equal(3);
+    });
+
+    it('should throw error if template (type violation zero) @typeViolation', () => {
+      const pm: unknown = [[]];
+      expect(() => BitUtil.packBits(pm as PackMap, null)).to.throw('zero');
+    });
+
+    it('should throw error if template (type violation gt 2) @typeViolation', () => {
+      const pm: unknown = [[1, 2, 3]];
+      expect(() => BitUtil.packBits(pm as PackMap, null)).to.throw('gt 2');
+    });
+
+    it('should throw error if template (type violation offset) @typeViolation', () => {
+      const pm: unknown = [['offset', 1]];
+      expect(() => BitUtil.packBits(pm as PackMap, null)).to.throw('offset');
+    });
+
+    it('should throw error if template (type violation length) @typeViolation', () => {
+      const pm: unknown = [[0, 'length']];
+      expect(() => BitUtil.packBits(pm as PackMap, null)).to.throw('length');
+    });
+
+    it('should throw error if template (type violation type) @typeViolation', () => {
+      const pm: unknown = [false];
+      expect(() => BitUtil.packBits(pm as PackMap, null)).to.throw('type');
+    });
+
+    it.skip('should throw error if template (overlap) @broken', () => {
+      expect(() => BitUtil.packBits([[3, 2], [2, 3]], [])).to.throw('overlapping');
+    });
+
+    it.skip('should throw error if template (overlap ends) @broken', () => {
+      expect(() => BitUtil.packBits([[3, 2], [2, 2]], [])).to.throw('overlapping');
+    });
+
+    it('should truncate values to template lengths', () => {
+      expect(BitUtil.packBits([[1, 2]], [0b101])).to.equal(1);
+    });
+
     it('should normalize pack example (single number array) @slow', () => {
       expect(BitUtil.packBits([3], [1], false)).to.equal(8);
     });
@@ -57,12 +111,6 @@ describe('BitUtil', () => {
     });
 
     // todo many more tests here
-  });
-
-  describe('#mapBits', () => {
-    it('should map simple bits to number', () => {
-      expect(BitUtil.mapBits(2, 2, 2)).to.equal(1);
-    });
   });
 
   describe('#decodeTwos', () => {

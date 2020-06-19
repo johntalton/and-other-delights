@@ -1,6 +1,6 @@
 /* eslint-disable spellcheck/spell-checker */
 // main entry point into this library
-export { BitUtil, PackMap } from './bitutil';
+export { BitUtil, PackMap, TRUE_8_PACKMAP, REVERSE_TRUE_8_PACKMAP } from './bitutil';
 export { BusUtil } from './busutil';
 export { ConfigUtil } from './configutil';
 export { NameValueUtil } from './nvutil';

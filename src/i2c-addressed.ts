@@ -4,6 +4,8 @@ const WARN_READ_LENGTH = 32;
 const WARN_WRITE_LENGTH = 32;
 const BUS_FILE_PREFIX = '/dev/i2c-';
 
+const DEFAULT_FILL = 0;
+
 interface I2CManagedBus {
   readonly name: string;
 
@@ -44,7 +46,7 @@ export class I2CAddressedBus implements I2CManagedBus {
   // get bus(): I2CBus { return this._bus; }
   // get address(): I2CAddress { return this._address; }
 
-  _getReadBuffer(length: number, fill = 0): Buffer {
+  private _getReadBuffer(length: number, fill = DEFAULT_FILL): Buffer {
     // not using shared buffer, allocate a new instance now
     if(this._sharedReadBuffer === undefined) {
       return Buffer.alloc(length, fill);

@@ -25,7 +25,7 @@ export class BusUtil {
    * @returns Array containing the Normalized Block, the source Data length
    *  associated with it and the total block length defined by the template.
    */
-  static normalizeBlock(block: BlockDefinition, warnStrict = true): [NormalizedBlockDefinition, number, number] {
+  private static normalizeBlock(block: BlockDefinition, warnStrict = true): [NormalizedBlockDefinition, number, number] {
     // normalize block from shorthand (aka [[37, 1], [37], 37] are all the same)
     const normalizedBlock: NormalizedBlockDefinition = block.map(item => {
       if(Array.isArray(item)) {

@@ -5,3 +5,4 @@ lib/*.tsbuildinfo
 coverage/
 .nyc_output/
 aod.min.js*
+.DS_Store

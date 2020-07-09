@@ -1,6 +1,5 @@
 {
   "name": "@johntalton/and-other-delights",
-  "private": true,
   "version": "3.0.0",
   "description": "",
   "main": "lib/aod.js",

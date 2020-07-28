@@ -16,7 +16,7 @@ jobs:
       with:
         languages: javascript
     
-    - uses: actions/setup-node@v2
+    - uses: actions/setup-node@v2.1.1
     - run: npm install
       
     - uses: github/codeql-action/analyze@v1

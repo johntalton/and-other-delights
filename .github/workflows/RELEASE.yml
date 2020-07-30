@@ -1,4 +1,4 @@
-name: Publish Package (NPM / GitHub)
+name: Publish (NPM / GitHub)
 on:
   release:
     types: [created]

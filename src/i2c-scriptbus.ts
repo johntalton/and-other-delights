@@ -14,6 +14,7 @@ export class I2CScriptBus implements I2CBus {
 
   private script: Script;
   private scriptIndex: number;
+  private debug: boolean;
 
   static openPromisified(busNumber: I2CBusNumber, script: Script): I2CBus {
     return new I2CScriptBus(busNumber, script);
@@ -23,10 +24,16 @@ export class I2CScriptBus implements I2CBus {
     this.busNumber = busNumber;
     this.scriptIndex = 0;
     this.script = script;
+    this.debug = false;
   }
 
   private validate(name: string): ScriptEntry {
+    const nextNode = this.script[this.scriptIndex];
+    if(nextNode.method === 'debug') { this.debug = true; this.scriptIndex += 1; }
+    if(nextNode.method === 'no-debug') { this.debug = false; this.scriptIndex += 1; }
+
     const scriptNode = this.script[this.scriptIndex];
+    if(this.debug) { console.log(name, 'scriptNode:', scriptNode); }
     if(scriptNode.method === 'throw') { throw new Error(scriptNode.result as string); }
     if(scriptNode.method !== name) {
       throw new Error('invalid script step #' + this.scriptIndex);

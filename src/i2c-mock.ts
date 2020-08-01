@@ -8,7 +8,7 @@ import {
 // types for static device definition
 type MockDefinition_RegisterProperty = Array<Record<string, { bit?: number, bits?: Array<number>, enum?: Record<number, string> }>>;
 type MockDefinition_Register = { name: string, properties: MockDefinition_RegisterProperty, readOnly: boolean, data: number };
-export type MockDefinition = { commandMask: number, register: Record<string, MockDefinition_Register> };
+export type MockDefinition = { debug?: boolean, commandMask: number, register: Record<string, MockDefinition_Register> };
 
 const INVALID_BYTE = 0x00;
 
@@ -65,6 +65,7 @@ class MockRegisterDefinition {
 
   get commandMask() { return this.definition.commandMask; }
 
+  get debug() { return this.definition.debug !== undefined ? this.definition.debug : false; }
 
   register(register: number) {
     if(this.clients[register] === undefined) { return new MockRegister(); }
@@ -109,6 +110,7 @@ class MockDevice implements I2CBus {
   }
 
   writeI2cBlock(_address: I2CAddress, command: number, length: number, buffer: Buffer) {
+    if(this._definition.debug) { console.log('writeI2cBloc', _address, command, length, buffer); }
     if(this._closed) { return Promise.reject(new Error('device closed')); }
     // console.log('Mock Write', address.toString(16), command.toString(16), buffer);
 
@@ -135,6 +137,7 @@ class MockDevice implements I2CBus {
   }
 
   readI2cBlock(_address: I2CAddress, command: number, length: number) {
+    if(this._definition.debug) { console.log('readI2cBlock', _address, command, length); }
     if(this._closed) { return Promise.reject(new Error('device closed')); }
     // console.log('Mock Read', address.toString(16), command.toString(16), length);
 
@@ -153,6 +156,7 @@ class MockDevice implements I2CBus {
   }
 
   sendByte(_address: I2CAddress, byte: number) {
+    if(this._definition.debug) { console.log('sendByte', _address, byte); }
     if(this._closed) { return Promise.reject(new Error('device closed')); }
     //
     console.log('sendByte', byte);
@@ -176,6 +180,7 @@ class MockDevice implements I2CBus {
   }
 
   i2cRead(_address: I2CAddress, length: number, buffer: Buffer) {
+    if(this._definition.debug) { console.log('i2cRead', _address, length, buffer); }
     if(this._closed) { return Promise.reject(new Error('device closed')); }
     //
     console.log('i2cRead', _address, length);
@@ -191,6 +196,7 @@ class MockDevice implements I2CBus {
   }
 
   i2cWrite(_address: I2CAddress, length: number, buffer: Buffer) {
+    if(this._definition.debug) { console.log('i2cWrite', _address, length, buffer); }
     if(this._closed) { return Promise.reject(new Error('device closed')); }
     //
     console.log('i2cWrite', _address, length, buffer);

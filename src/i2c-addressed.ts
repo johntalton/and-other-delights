@@ -6,6 +6,9 @@ const BUS_FILE_PREFIX = '/dev/i2c-';
 
 const DEFAULT_FILL = 0;
 
+/**
+ * Wraps an `I2CBus` to provide address and buffer management.
+ **/
 interface I2CManagedBus {
   readonly name: string;
 
@@ -22,7 +25,7 @@ interface I2CManagedBus {
 
 
 /**
- *
+ * Basic and simple implementation of the `I2CManagedBus` interface.
  **/
 export class I2CAddressedBus implements I2CManagedBus {
   private _address: number;
@@ -66,7 +69,13 @@ export class I2CAddressedBus implements I2CManagedBus {
   }
 
   write(cmd: number, buffer: Buffer): Promise<void> {
-    if(buffer === undefined) { return this.writeSpecial(cmd); }
+    if(buffer === undefined) {
+      // TODO remove this as it is prefered to explicitly call writeSpecial
+      console.log('** support for special write pass-through will be removed **');
+      return this.writeSpecial(cmd);
+    }
+
+    // TODO this is an unnecessary guard when typed, left in for safety
     if(!Buffer.isBuffer(buffer)) { throw new Error('buffer is not a buffer'); }
     if(buffer.length > WARN_WRITE_LENGTH) { console.log('over max recommend w length'); }
     return this._bus.writeI2cBlock(this._address, cmd, buffer.length, buffer)
@@ -74,6 +83,7 @@ export class I2CAddressedBus implements I2CManagedBus {
       .then(({ bytesWritten }) => { return; }); // todo bytesWritten
   }
 
+  // TODO rename this, as it is non-standard.
   writeSpecial(special: number): Promise<void> {
     return this._bus.sendByte(this._address, special);
   }

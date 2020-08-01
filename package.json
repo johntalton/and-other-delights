@@ -31,7 +31,7 @@
     "test": "npm run test:mocha",
     "test:mocha": "mocha",
     "coverage": "npm --silent run coverage:nyc",
-    "coverage:nyc": "nyc npm --silent run test:mocha -- --reporter min",
+    "coverage:nyc": "nyc npm run test:mocha -- --reporter min",
     "coverage:c8": "c8 --check-coverage --all --lines 75 --functions 5 --branches 85 npm --silent run test:mocha -- --no-parallel --reporter min",
     "audit": "auditjs ossi --dev",
     "clean": "rm -rf .nyc_output coverage lib node_modules package-lock.json aod.min.js aod.min.js.map"
@@ -80,7 +80,7 @@
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "@types/chai": "^4.2.11",
-    "@types/mocha": "^7.0.2",
+    "@types/mocha": "^8.0.0",
     "@types/node": "^14.0.12",
     "@typescript-eslint/eslint-plugin": "^3.3.0",
     "@typescript-eslint/parser": "^3.3.0",
@@ -93,7 +93,7 @@
     "eslint-plugin-functional": "^3.0.1",
     "eslint-plugin-immutable": "^1.0.0",
     "eslint-plugin-import": "^2.21.2",
-    "eslint-plugin-jsdoc": "^29.1.0",
+    "eslint-plugin-jsdoc": "^30.0.3",
     "eslint-plugin-mocha": "^7.0.1",
     "eslint-plugin-no-loops": "^0.3.0",
     "eslint-plugin-no-use-extend-native": "^0.5.0",

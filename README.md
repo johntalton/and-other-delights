@@ -4,10 +4,11 @@ A simple set of abstraction and helpers useful when writing sensor libraries.
 [![npm Version](https://img.shields.io/npm/v/@johntalton/and-other-delights.svg)](https://www.npmjs.com/package/@johntalton/and-other-delights)
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/johntalton/and-other-delights)
 ![CI](https://github.com/johntalton/and-other-delights/workflows/CI/badge.svg?branch=master&event=push)
+![CodeQL](https://github.com/johntalton/and-other-delights/workflows/CodeQL/badge.svg)
 ![GitHub](https://img.shields.io/github/license/johntalton/and-other-delights)
 [![Downloads Per Month](https://img.shields.io/npm/dm/@johntalton/and-other-delights.svg)](https://www.npmjs.com/package/@johntalton/and-other-delights)
 ![GitHub last commit](https://img.shields.io/github/last-commit/johntalton/and-other-delights)
-
+[![Package Quality](https://npm.packagequality.com/shield/%40johntalton%2Fand-other-delights.svg)](https://packagequality.com/#?package=@johntalton/and-other-delights)
 
 ## Contents
 * [BitUtil](#book-itUtil)

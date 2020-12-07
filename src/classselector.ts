@@ -7,7 +7,7 @@ export class ClassSelector<S, R> {
   private inval: S;
   private result?: R;
 
-  static from<S, R>(inval: S): ClassSelector<S, R> {
+  static from<U, V>(inval: U): ClassSelector<U, V> {
     return new ClassSelector(inval);
   }
 

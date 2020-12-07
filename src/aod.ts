@@ -13,3 +13,4 @@ export {
 export { I2CAddressedBus } from './i2c-addressed';
 export { I2CMockBus } from './i2c-mock';
 export { EOS_SCRIPT, Script, I2CScriptBus } from './i2c-scriptbus';
+export { ThrowBus } from './i2c-throwbus';

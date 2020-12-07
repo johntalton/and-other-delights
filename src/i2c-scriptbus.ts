@@ -16,8 +16,8 @@ export class I2CScriptBus implements I2CBus {
   private scriptIndex: number;
   private debug: boolean;
 
-  static openPromisified(busNumber: I2CBusNumber, script: Script): I2CBus {
-    return new I2CScriptBus(busNumber, script);
+  static openPromisified(busNumber: I2CBusNumber, script: Script): Promise<I2CBus> {
+    return Promise.resolve(new I2CScriptBus(busNumber, script));
   }
 
   constructor(busNumber: I2CBusNumber, script: Script) {

@@ -2,7 +2,11 @@ import { describe, it } from 'mocha';
 import { expect } from 'chai';
 
 // eslint-disable-next-line sort-imports
-import { EOS_SCRIPT, I2CAddressedBus, Script, I2CScriptBus } from './aod';
+import {
+  EOS_SCRIPT, I2CAddressedBus, I2CBus, I2CBusNumber,
+  I2CReadResult, I2CScriptBus, I2CWriteResult, Script,
+  ThrowBus
+} from './aod';
 
 const SCRIPT_BUS_NUMBER = 1;
 const SCRIPT_BUS_ADDRESS = 0x00;
@@ -42,8 +46,28 @@ const BUFFER_WRITE_SCRIPT: Script = [
 ];
 
 describe('I2CAddressedBus', () => {
+  describe('#constructor', () => {
+    it('should construct', () => {
+      expect(async () => new I2CAddressedBus(await ThrowBus.openPromisified(0), 0x00)).to.not.throw();
+    });
+
+  });
+
+  describe('#openPromisified', () => {
+    it('should generate', () => {
+      expect(async () => I2CAddressedBus.from(await ThrowBus.openPromisified(0), 0x00)).to.not.throw();
+    });
+
+    it('should be frozen', async () => {
+      const tb = await ThrowBus.openPromisified(0);
+      const ab = await I2CAddressedBus.from(tb, 0x00);
+
+      expect(ab).to.be.frozen; // eslint-disable-line no-unused-expressions
+    });
+  });
+
   describe('#name', () => {
-    it('should return name', () => {
+    it('should support oo construction', () => {
       const sb = I2CScriptBus.openPromisified(SCRIPT_BUS_NUMBER, SCRIPT);
       const ab = new I2CAddressedBus(sb, SCRIPT_BUS_ADDRESS);
       expect(ab.name).to.equal('i2c:/dev/i2c-1/0x0');

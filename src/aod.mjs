@@ -12,5 +12,6 @@ export const {
   I2CReadResult, I2CWriteResult,
   I2CAddressedBus,
   I2CMockBus,
-  EOS_SCRIPT, Script, I2CScriptBus
+  EOS_SCRIPT, Script, I2CScriptBus,
+  I2CThrowBus
 } = aod;

@@ -28,12 +28,12 @@ interface I2CManagedBus {
  * Basic and simple implementation of the `I2CManagedBus` interface.
  **/
 export class I2CAddressedBus implements I2CManagedBus {
-  private _address: number;
+  private _address: I2CAddress;
   private _bus: I2CBus;
   private _sharedReadBuffer?: Buffer;
 
   static from(i2cBus: I2CBus, address: I2CAddress): Promise<I2CManagedBus> {
-    return Promise.resolve(new I2CAddressedBus(i2cBus, address));
+    return Promise.resolve(Object.freeze(new I2CAddressedBus(i2cBus, address)));
   }
 
   constructor(i2cBus: I2CBus, address: I2CAddress, sharedReadBuffer?: Buffer) {

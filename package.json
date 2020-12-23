@@ -36,8 +36,7 @@
   },
   "eslintConfig": {
     "extends": [
-      "@johntalton/eslint-config/ts",
-      "@johntalton/eslint-config/node"
+      "@johntalton/eslint-config/ts"
     ],
     "env": {
       "node": true

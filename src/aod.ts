@@ -2,9 +2,6 @@
 // main entry point into this library
 export { BitUtil, PackMap, TRUE_8_PACKMAP, REVERSE_TRUE_8_PACKMAP } from './bitutil';
 export { BusUtil } from './busutil';
-export { ConfigUtil } from './configutil';
-export { NameValueUtil } from './nvutil';
-export { ClassSelector } from './classselector';
 export {
   I2CAddress,
   I2CBus, I2CBusNumber,

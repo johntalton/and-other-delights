@@ -1,6 +1,6 @@
 {
   "name": "@johntalton/and-other-delights",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "description": "",
   "main": "lib/aod.js",
   "exports": {
@@ -19,7 +19,7 @@
   "scripts": {
     "lint": "npm --silent run lint:ts",
     "lint:ts": "./node_modules/.bin/eslint --ext .ts src/*.ts",
-    "lint:js": "./node_modules/.bin/eslint -c .eslintrc.js.json lib/*.js",
+    "Xlint:js": "./node_modules/.bin/eslint -c .eslintrc.js.json lib/*.js",
     "format": "npm --silent run format:beauty && npm --silent run format:min",
     "format:beauty": "js-beautify -jslint-happy --indent-size 2 --space-in-empty-paren ./lib/*.js",
     "format:min": "terser lib/*.js --source-map --output aod.min.js --ecma 2020 --comments some --compress --mangle",
@@ -33,6 +33,31 @@
     "coverage:c8": "c8 --check-coverage --all --lines 75 --functions 5 --branches 85 npm --silent run test:mocha -- --no-parallel --reporter min",
     "audit": "auditjs ossi --dev",
     "clean": "rm -r .nyc_output coverage lib node_modules package-lock.json aod.min.js aod.min.js.map"
+  },
+  "eslintConfig": {
+    "extends": [
+      "@johntalton/eslint-config/ts"
+    ],
+    "env": {
+      "node": true
+    },
+    "ignorePatterns": "test/**/*.ts",
+    "rules": {
+      "valid-jsdoc": "off",
+      "max-len": [
+        "warn",
+        {
+          "code": 120
+        }
+      ],
+      "fp/no-throw": "off",
+      "fp/no-nil": "off",
+      "fp/no-class": "off",
+      "immutable/no-mutation": "off",
+      "fp/no-mutation": "off",
+      "fp/no-this": "off",
+      "immutable/no-this": "off"
+    }
   },
   "mocha": {
     "spec": [
@@ -80,6 +105,7 @@
   "dependencies": {},
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
+    "@johntalton/eslint-config": "^2.0.0",
     "@types/chai": "^4.2.11",
     "@types/mocha": "^8.0.0",
     "@types/node": "^14.0.12",
@@ -94,7 +120,6 @@
     "eslint-plugin-functional": "^3.0.1",
     "eslint-plugin-immutable": "^1.0.0",
     "eslint-plugin-import": "^2.21.2",
-    "eslint-plugin-jsdoc": "^30.2.1",
     "eslint-plugin-mocha": "^8.0.0",
     "eslint-plugin-no-loops": "^0.3.0",
     "eslint-plugin-no-use-extend-native": "^0.5.0",

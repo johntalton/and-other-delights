@@ -1,6 +1,10 @@
-import { I2CAddress, I2CBus, I2CBusNumber, I2CReadResult, I2CWriteResult } from './aod'
+import { I2CAddress, I2CBufferSource, I2CBus, I2CReadResult, I2CWriteResult } from './aod'
 
-export type ScriptEntry = { method: string, parameters?: Array<number>, result?: number | string | I2CReadResult | I2CWriteResult }
+export type ScriptEntry = {
+  method: string,
+  parameters?: Array<number>,
+  result?: number | string | I2CReadResult | I2CWriteResult
+}
 export type Script = Array<ScriptEntry>
 
 export const EOS_SCRIPT: Script = [
@@ -10,22 +14,24 @@ export const EOS_SCRIPT: Script = [
  *
  */
 export class I2CScriptBus implements I2CBus {
-  readonly busNumber: I2CBusNumber
+  readonly _name: string
 
   private script: Script
   private scriptIndex: number
   private debug: boolean
 
-  static openPromisified(busNumber: I2CBusNumber, script: Script): Promise<I2CBus> {
-    return Promise.resolve(new I2CScriptBus(busNumber, script))
+  static async openPromisified(script: Script): Promise<I2CBus> {
+    return Promise.resolve(new I2CScriptBus(script))
   }
 
-  constructor(busNumber: I2CBusNumber, script: Script) {
-    this.busNumber = busNumber
+  constructor(script: Script) {
+    this._name = '__unnamed__'
     this.scriptIndex = 0
     this.script = script
     this.debug = false
   }
+
+  get name(): string { return this._name }
 
   private validate(name: string): ScriptEntry {
     const nextNode = this.script[this.scriptIndex]
@@ -46,27 +52,28 @@ export class I2CScriptBus implements I2CBus {
     this.validate('close')
   }
 
-  sendByte(address: I2CAddress, byte: number): Promise<void> {
+  async sendByte(_address: I2CAddress, _byte: number): Promise<void> {
     this.validate('sendByte')
     return Promise.resolve()
   }
 
-  readI2cBlock(address: number, cmd: number, length: number, buffer: Buffer): Promise<I2CReadResult> {
+  async readI2cBlock(_address: I2CAddress, _cmd: number, _length: number, _bufferSource: I2CBufferSource): Promise<I2CReadResult> {
+    console.log('readI2cBlock')
     const scriptNode = this.validate('readI2cBlock')
     return Promise.resolve(scriptNode.result as I2CReadResult)
   }
 
-  writeI2cBlock(address: number, cmd: number, length: number, buffer: Buffer): Promise<I2CWriteResult> {
+  async writeI2cBlock(_address: I2CAddress, _cmd: number, _length: number, _bufferSource: I2CBufferSource): Promise<I2CWriteResult> {
     const scriptNode = this.validate('writeI2cBlock')
     return Promise.resolve(scriptNode.result as I2CWriteResult)
   }
 
-  i2cRead(address: number, length: number, buffer: Buffer): Promise<I2CReadResult> {
+  async i2cRead(_address: I2CAddress, _length: number, _bufferSource: I2CBufferSource): Promise<I2CReadResult> {
     const scriptNode = this.validate('i2cRead')
     return Promise.resolve(scriptNode.result as I2CReadResult)
   }
 
-  i2cWrite(address: number, length: number, buffer: Buffer): Promise<I2CWriteResult> {
+  async i2cWrite(_address: I2CAddress, _length: number, _bufferSource: I2CBufferSource): Promise<I2CWriteResult> {
     const scriptNode = this.validate('i2cWrite')
     return Promise.resolve(scriptNode.result as I2CWriteResult)
   }

@@ -1,14 +1,25 @@
+/* eslint-disable immutable/no-this */
+/* eslint-disable fp/no-this */
+/* eslint-disable fp/no-unused-expression */
+/* eslint-disable immutable/no-mutation */
+/* eslint-disable fp/no-mutation */
+/* eslint-disable fp/no-nil */
+/* eslint-disable fp/no-class */
 /* eslint-disable max-classes-per-file */
 import {
   I2CAddress,
-  I2CBus, I2CBusNumber,
-  I2CReadResult, I2CWriteResult
+  I2CBufferSource,
+  I2CBus,
+  I2CReadResult,
+  I2CWriteResult
 } from './aod'
 
 // types for static device definition
 type MockDefinition_RegisterProperty = Array<Record<string, { bit?: number, bits?: Array<number>, enum?: Record<number, string> }>>
 type MockDefinition_Register = { name: string, properties: MockDefinition_RegisterProperty, readOnly: boolean, data: number }
 export type MockDefinition = { debug?: boolean, commandMask: number, register: Record<string, MockDefinition_Register> }
+
+export type MockBusNumber = number
 
 const INVALID_BYTE = 0x00
 
@@ -78,12 +89,14 @@ class MockRegisterDefinition {
  *
  **/
 class MockDevice implements I2CBus {
-  private _busNumber: I2CBusNumber
+  private _name: string
+  private _busNumber: MockBusNumber
   private _busAddress: I2CAddress
   private _definition: MockRegisterDefinition
   private _closed = false
 
-  constructor(busNumber: I2CBusNumber, busAddress: I2CAddress, deviceDef: MockDefinition) {
+  constructor(busNumber: MockBusNumber, busAddress: I2CAddress, deviceDef: MockDefinition) {
+    this._name = '__unnamed__'
     this._busNumber = busNumber
     this._busAddress = busAddress
     this._definition = new MockRegisterDefinition(deviceDef)
@@ -92,6 +105,8 @@ class MockDevice implements I2CBus {
     // this.memory = {}
     // this.cursor = NaN
   }
+
+  get name() { return this._name }
 
   checkAddress(busAddress: I2CAddress) {
     if(busAddress !== this._busAddress) { throw new Error('invalid address') }
@@ -109,15 +124,17 @@ class MockDevice implements I2CBus {
     return this._definition.register(register)
   }
 
-  writeI2cBlock(_address: I2CAddress, command: number, length: number, buffer: Buffer) {
-    if(this._definition.debug) { console.log('writeI2cBloc', _address, command, length, buffer) }
+  writeI2cBlock(_address: I2CAddress, command: number, length: number, bufferSource: I2CBufferSource) {
+    if(this._definition.debug) { console.log('writeI2cBloc', _address, command, length, bufferSource) }
     if(this._closed) { return Promise.reject(new Error('device closed')) }
     // console.log('Mock Write', address.toString(16), command.toString(16), buffer)
 
     const maskedCommand = command & this._definition.commandMask
 
     // TOD required semi as this is a dangling array buffer that does not assign
-    ;[...buffer].filter((_, index) => index < length).forEach((item, index) => {
+    const buffer = ArrayBuffer.isView(bufferSource) ? bufferSource.buffer : bufferSource
+    const typedArray = new Uint8Array(buffer)
+    typedArray.filter((_, index) => index < length).forEach((item, index) => {
 
       const actualCommand = maskedCommand + index
 
@@ -133,6 +150,7 @@ class MockDevice implements I2CBus {
       //
       this.register(actualCommand).data = item
     })
+
     const bytesWritten = length
     return Promise.resolve({ bytesWritten, buffer })
   }
@@ -181,8 +199,8 @@ class MockDevice implements I2CBus {
     return Promise.resolve()
   }
 
-  i2cRead(_address: I2CAddress, length: number, buffer: Buffer) {
-    if(this._definition.debug) { console.log('i2cRead', _address, length, buffer) }
+  i2cRead(_address: I2CAddress, length: number, bufferSource: I2CBufferSource): Promise<I2CReadResult> {
+    if(this._definition.debug) { console.log('i2cRead', _address, length, bufferSource) }
     if(this._closed) { return Promise.reject(new Error('device closed')) }
     //
     console.log('i2cRead', _address, length)
@@ -190,53 +208,59 @@ class MockDevice implements I2CBus {
     const register = 0x00
     if(!this.register(register).valid) {
       console.log('invalid read address', '0x' + register.toString(16))
-      return Promise.resolve({ bytesRead: 0, buffer })
+      return Promise.resolve({ bytesRead: 0, buffer: new ArrayBuffer(0) })
     }
 
-    buffer[0] = this.register(register).data
+    const buffer: ArrayBuffer = ArrayBuffer.isView(bufferSource) ? bufferSource.buffer : bufferSource
+
+    const typedBuffer = new Uint8Array(buffer)
+    typedBuffer[0] = this.register(register).data
     return Promise.resolve({ bytesRead: 1, buffer })
   }
 
-  i2cWrite(_address: I2CAddress, length: number, buffer: Buffer) {
-    if(this._definition.debug) { console.log('i2cWrite', _address, length, buffer) }
+  i2cWrite(_address: I2CAddress, length: number, bufferSource: I2CBufferSource): Promise<I2CWriteResult> {
+    if(this._definition.debug) { console.log('i2cWrite', _address, length, bufferSource) }
     if(this._closed) { return Promise.reject(new Error('device closed')) }
     //
-    console.log('i2cWrite', _address, length, buffer)
+    console.log('i2cWrite', _address, length, bufferSource)
     const register = 0x00
     if(!this.register(register).valid) {
       console.log('invalid write address', '0x' + register.toString(TO_STRING_BASE_HEX))
-      return Promise.resolve({ bytesWritten: BYTES_WRITTEN_ERROR_LENGTH, buffer })
+      return Promise.resolve({ bytesWritten: BYTES_WRITTEN_ERROR_LENGTH, buffer: new ArrayBuffer(0) })
     }
 
     if(this.register(register).readOnly === true) {
       console.log('readOnly')
-      return Promise.resolve({ bytesWritten: BYTES_WRITTEN_ERROR_LENGTH, buffer })
+      return Promise.resolve({ bytesWritten: BYTES_WRITTEN_ERROR_LENGTH, buffer: new ArrayBuffer(0) })
     }
 
-    const [data] = buffer
-    this.register(register).data = data
+    const buffer = new Uint8Array(ArrayBuffer.isView(bufferSource) ? bufferSource.buffer : bufferSource)
+    const [ first ] = buffer
+    this.register(register).data = first
 
     const bytesWritten = length
-    return Promise.resolve({ bytesWritten, buffer })
+    return Promise.resolve({ bytesWritten, buffer: buffer })
   }
 }
 
 /**
  *
  **/
-// eslint-disable-next-line import/prefer-default-export
 export class I2CMockBus implements I2CBus {
-  private readonly _busNumber: I2CBusNumber
-  private static readonly _addressMap: Record<I2CBusNumber, Record<I2CAddress, MockDevice>> = {}
+  private readonly _name: string
+  private readonly _busNumber: MockBusNumber
+  private static readonly _addressMap: Record<MockBusNumber, Record<I2CAddress, MockDevice>> = {}
   private _closed = false
 
-  constructor(busNumber: I2CBusNumber) {
+  constructor(busNumber: MockBusNumber) {
+    this._name = '__unnamed__'
     this._busNumber = busNumber
   }
 
-  get busNumber(): I2CBusNumber { return this._busNumber }
+  get busNumber(): MockBusNumber { return this._busNumber }
+  get name(): string { return this._name }
 
-  static addDevice(bus: I2CBusNumber, address: I2CAddress, deviceDefinition: MockDefinition): void {
+  static addDevice(bus: MockBusNumber, address: I2CAddress, deviceDefinition: MockDefinition): void {
     const md = new MockDevice(bus, address, deviceDefinition)
 
     // if(I2CMockBus._addressMap === undefined) { I2CMockBus._addressMap = {} }
@@ -244,7 +268,7 @@ export class I2CMockBus implements I2CBus {
     I2CMockBus._addressMap[bus][address] = md
   }
 
-  static openPromisified(busNumber: number): Promise<I2CBus> {
+  static async openPromisified(busNumber: number): Promise<I2CBus> {
     return Promise.resolve(new I2CMockBus(busNumber))
   }
 
@@ -253,28 +277,28 @@ export class I2CMockBus implements I2CBus {
     this._closed = true
   }
 
-  writeI2cBlock(address: I2CAddress, command: number, length: number, buffer: Buffer): Promise<I2CWriteResult> {
+  async writeI2cBlock(address: I2CAddress, command: number, length: number, bufferSource: I2CBufferSource): Promise<I2CWriteResult> {
     if(this._closed) { return Promise.reject(new Error('bus closed')) }
-    return I2CMockBus._addressMap[this._busNumber][address].writeI2cBlock(address, command, length, buffer)
+    return I2CMockBus._addressMap[this._busNumber][address].writeI2cBlock(address, command, length, bufferSource)
   }
 
-  readI2cBlock(address: I2CAddress, command: number, length: number): Promise<I2CReadResult> {
+  async readI2cBlock(address: I2CAddress, command: number, length: number): Promise<I2CReadResult> {
     if(this._closed) { return Promise.reject(new Error('bus closed')) }
     return I2CMockBus._addressMap[this._busNumber][address].readI2cBlock(address, command, length)
   }
 
-  sendByte(address: I2CAddress, byte: number): Promise<void> {
+  async sendByte(address: I2CAddress, byte: number): Promise<void> {
     if(this._closed) { return Promise.reject(new Error('bus closed')) }
     return I2CMockBus._addressMap[this._busNumber][address].sendByte(address, byte)
   }
 
-  i2cRead(address: I2CAddress, length: number, buffer: Buffer): Promise<I2CReadResult> {
+  async i2cRead(address: I2CAddress, length: number, bufferSource: I2CBufferSource): Promise<I2CReadResult> {
     if(this._closed) { return Promise.reject(new Error('bus closed')) }
-    return I2CMockBus._addressMap[this._busNumber][address].i2cRead(address, length, buffer)
+    return I2CMockBus._addressMap[this._busNumber][address].i2cRead(address, length, bufferSource)
   }
 
-  i2cWrite(address: I2CAddress, length: number, buffer: Buffer): Promise<I2CWriteResult> {
+  async i2cWrite(address: I2CAddress, length: number, bufferSource: I2CBufferSource): Promise<I2CWriteResult> {
     if(this._closed) { return Promise.reject(new Error('bus closed')) }
-    return I2CMockBus._addressMap[this._busNumber][address].i2cWrite(address, length, buffer)
+    return I2CMockBus._addressMap[this._busNumber][address].i2cWrite(address, length, bufferSource)
   }
 }

@@ -1,4 +1,4 @@
-import { I2CAddress, I2CBus } from './aod'
+import { I2CAddress, I2CBufferSource, I2CBus } from './aod'
 
 const WARN_READ_LENGTH = 32
 const WARN_WRITE_LENGTH = 32
@@ -14,26 +14,26 @@ interface I2CManagedBus {
   close(): void
 
   readI2cBlock(cmd: number, length: number): Promise<ArrayBuffer>
-  writeI2cBlock(cmd: number, buffer: ArrayBuffer): Promise<void>
+  writeI2cBlock(cmd: number, bufferSource: I2CBufferSource): Promise<void>
 
   sendByte(cmd: number): Promise<void>
   i2cRead(length: number): Promise<ArrayBuffer>
-  i2cWrite(buffer: ArrayBuffer): Promise<void>
+  i2cWrite(bufferSource: I2CBufferSource): Promise<void>
 }
 
 /**
  * Basic and simple implementation of the `I2CManagedBus` interface.
  **/
 export class I2CAddressedBus implements I2CManagedBus {
-  private _address: I2CAddress
-  private _bus: I2CBus
-  private _sharedReadBuffer?: Buffer
+  private readonly _address: I2CAddress
+  private readonly _bus: I2CBus
+  private readonly _sharedReadBuffer?: I2CBufferSource
 
-  static from(bus: I2CBus, address: I2CAddress): Promise<I2CManagedBus> {
+  static async from(bus: I2CBus, address: I2CAddress): Promise<I2CManagedBus> {
     return Promise.resolve(Object.freeze(new I2CAddressedBus(bus, address)))
   }
 
-  constructor(i2cBus: I2CBus, address: I2CAddress, sharedReadBuffer?: Buffer) {
+  constructor(i2cBus: I2CBus, address: I2CAddress, sharedReadBuffer?: I2CBufferSource) {
     this._address = address
     this._bus = i2cBus
     this._sharedReadBuffer = sharedReadBuffer // shared buffer for reading
@@ -43,14 +43,17 @@ export class I2CAddressedBus implements I2CManagedBus {
     return this._bus.name + ':0x' + this._address.toString(16)
   }
 
-  private _getReadBuffer(length: number, fill = DEFAULT_FILL): Buffer {
+  private _getReadBuffer(length: number, _fill = DEFAULT_FILL): I2CBufferSource {
     // not using shared buffer, allocate a new instance now
     if(this._sharedReadBuffer === undefined) {
-      return Buffer.alloc(length, fill)
+      return new ArrayBuffer(length)
     }
 
     // return shared buffer if its large enough
-    if(length > this._sharedReadBuffer.length) { throw new Error('shared buffer to small') }
+    if(length > this._sharedReadBuffer.byteLength) {
+      throw new Error('shared buffer to small')
+    }
+
     return this._sharedReadBuffer
   }
 
@@ -63,10 +66,23 @@ export class I2CAddressedBus implements I2CManagedBus {
     return buffer.slice(0, bytesRead)
   }
 
-  async writeI2cBlock(cmd: number, buffer: ArrayBuffer): Promise<void> {
-    if(buffer.byteLength > WARN_WRITE_LENGTH) { console.log('over max recommend w length') }
-    const { bytesWritten } = await this._bus.writeI2cBlock(this._address, cmd, buffer.byteLength, buffer)
-    if(bytesWritten !== buffer.byteLength) { throw new Error('write length mismatch') }
+  async writeI2cBlock(cmd: number, bufferSource: I2CBufferSource): Promise<void> {
+    if(bufferSource === undefined) {
+      throw new Error('use specific single byte call')
+    }
+
+    const isView = ArrayBuffer.isView(bufferSource)
+    const isAB = bufferSource instanceof ArrayBuffer
+
+    if(!isView && !isAB) {
+      throw new Error('not a bufferSource')
+    }
+
+    if(bufferSource.byteLength > WARN_WRITE_LENGTH) { console.log('over max recommend w length') }
+    const { bytesWritten } = await this._bus.writeI2cBlock(this._address, cmd, bufferSource.byteLength, bufferSource)
+    if(bytesWritten !== bufferSource.byteLength) {
+      throw new Error('write length mismatch: ' + bytesWritten + '/' + bufferSource.byteLength)
+    }
   }
 
   async sendByte(value: number): Promise<void> {
@@ -75,12 +91,19 @@ export class I2CAddressedBus implements I2CManagedBus {
 
   async i2cRead(length: number): Promise<ArrayBuffer> {
     const { bytesRead, buffer } = await this._bus.i2cRead(this._address, length, this._getReadBuffer(length))
-    if(bytesRead !== length) { throw new Error('read length mismatch') }
+    if(bytesRead !== length) { throw new Error('read length mismatch: ' + bytesRead + '/' + length) }
     return buffer.slice(0, bytesRead)
   }
 
-  async i2cWrite(buffer: ArrayBuffer): Promise<void> {
-    const { bytesWritten } = await this._bus.i2cWrite(this._address, buffer.byteLength, buffer)
-    if(bytesWritten !== buffer.byteLength) { throw new Error('write length mismatch') }
+  async i2cWrite(bufferSource: I2CBufferSource): Promise<void> {
+    const isView = ArrayBuffer.isView(bufferSource)
+    const isAB = bufferSource instanceof ArrayBuffer
+
+    if(!isView && !isAB) {
+      throw new Error('not a bufferSource')
+    }
+
+    const { bytesWritten } = await this._bus.i2cWrite(this._address, bufferSource.byteLength, bufferSource)
+    if(bytesWritten !== bufferSource.byteLength) { throw new Error('write length mismatch') }
   }
 }

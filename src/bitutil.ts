@@ -5,8 +5,10 @@ export const REVERSE_TRUE_8_PACKMAP = [0, 1, 2, 3, 4, 5, 6, 7]
 // A Template type for the Packing and Unpacking of bit(s) into and
 // out of a n-byte data value.
 // It is an Array of a tuple array that contains the offset and length.
-export type PackMap = Array<[number, number]|[number]|number>
-export type NormalizedPackMap = Array<[number, number]>
+export type NormalizedPacMapItem = [number, number]
+export type SloppyPackMapItem = NormalizedPacMapItem | [number] | number
+export type PackMap = Array<SloppyPackMapItem>
+export type NormalizedPackMap = Array<NormalizedPacMapItem>
 
 const BIT_SIZE = 8
 const NEGATIVE_ONE = -1
@@ -79,11 +81,11 @@ export class BitUtil {
     return (bits >> shift) & mask
   }
 
-  private static isNonOverlapping(normalPackMap: NormalizedPackMap): boolean {
+  private static isNonOverlapping(_normalPackMap: NormalizedPackMap): boolean {
     return true
   }
 
-  private static isOrdered(normalPackMap: NormalizedPackMap): boolean {
+  private static isOrdered(_normalPackMap: NormalizedPackMap): boolean {
     return true
   }
 
@@ -98,7 +100,7 @@ export class BitUtil {
    * @returns A packMap with explicitly defined values.
    */
   private static normalizePackMap(packMap: PackMap, warnStrict = true): NormalizedPackMap {
-    function formatE(kind: string, item?: any) {
+    function formatE(kind: string, item?: SloppyPackMapItem) {
       return `invalid packMap format (${kind}): ${JSON.stringify(item)}`
     }
 
@@ -123,11 +125,17 @@ export class BitUtil {
 
         // otherwise, its already normal
         const [offset, length] = item
-        if(!Number.isInteger(offset)) { throw new Error(formatE('offset', offset)) }
-        if(!Number.isInteger(length)) { throw new Error(formatE('length', length)) }
+        if(!Number.isInteger(offset)) {
+          throw new Error(formatE('offset', offset))
+        }
+        if(!Number.isInteger(length)) {
+          throw new Error(formatE('length', length))
+        }
         return [offset, length]
 
-      } else if(Number.isInteger(item)) {
+      }
+
+      if(Number.isInteger(item)) {
         if(warnStrict) { console.log('sloppy packMap format', item) }
         return [item, DEFAULT_LENGTH]
       }

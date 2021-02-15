@@ -1,6 +1,7 @@
 name: Nightly
 
 on:
+  workflow_dispatch:
   schedule:
     # try picking something thats not 0 0
     - cron: "5 7 * * *"
@@ -10,6 +11,6 @@ jobs:
     steps:
     - run: npm i @johntalton/and-other-delights
     - run: echo "const { BitUtil } = require('@johntalton/and-other-delights');BitUtil.packBits([[7, 1]], [1])" > import-test.cjs
-    - run: echo "import aod from '@johntalton/and-other-delights';aod.BitUtil.packBits([[7, 1]], [1])" > import-test.mjs
+    - run: echo "import { BinUtil} from '@johntalton/and-other-delights';BitUtil.packBits([[7, 1]], [1])" > import-test.mjs
     - run: node import-test.cjs
     - run: node import-test.mjs

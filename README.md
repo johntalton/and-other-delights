@@ -8,7 +8,6 @@ A simple set of abstraction and helpers useful when writing sensor libraries.
 ![GitHub](https://img.shields.io/github/license/johntalton/and-other-delights)
 [![Downloads Per Month](https://img.shields.io/npm/dm/@johntalton/and-other-delights.svg)](https://www.npmjs.com/package/@johntalton/and-other-delights)
 ![GitHub last commit](https://img.shields.io/github/last-commit/johntalton/and-other-delights)
-[![Package Quality](https://npm.packagequality.com/shield/%40johntalton%2Fand-other-delights.svg)](https://packagequality.com/#?package=@johntalton/and-other-delights)
 
 ## Contents
 * [BitUtil](#book-itUtil)
@@ -94,7 +93,7 @@ Give an imaginary device with three registers of differnt lengths this example w
 
 ```javascript
 // get the good stuff
-import i2c from 'i2c-bus'
+import i2c from '...'
 import { I2CAddressedBus } from '@johntalton/and-other-delights'
 
 // setup a make believe device on bus 1 address 66
@@ -175,43 +174,43 @@ Providing a `I2CManagedBus` interface to the device and wrapping an `I2CBus`.
 ```javascript
 const ab = await I2CAddressedBus.from(i2cbus, busAddress)
 ```
-#### `read`
+#### `readI2cBlock`
 Reads a blocks of data of `length` given a `command` byte (register address).
 
 Such that the following would read 32-bits from register 0x1A (in a register based device)
 ```javascript
-const register = await ab.read(0x1A, 4)
+const result = await ab.readI2cBlock(0x1A, 4)
 ```
 
-#### `write`
+#### `writeI2cBlock`
 Write a block of data to a given 'command' (at register address)
 
 The following would write 32-bits for at the given address.
 ```javascript
-await ab.write(0x1A, Buffer.from([3, 5, 7, 9))
+await ab.writeI2cBlock(0x1A, Uint8Array.from([3, 5, 7, 9))
 ```
 
-#### `writeSpecial`
-A special write command - also known as `sendByte` - that will write the command (register) value with no additional data.
+#### `sendByte`
+A single byte write command that tipicaly will write the command (register) value with no additional data.
 
-This is useful for command that expect a register set followed by a `readBuffer` call.
+This is useful for command that expect a register set followed by a `i2cRead` call.
 
-#### `readBuffer`
+#### `i2cRead`
 Reads a block of data of a given `length`.
-While implementations and designs differ, many devices use this method in conjunction with `writeSpecail` as a set-address/read-data pair.
+While implementations and designs differ, many devices use this method in conjunction with `sendBtye` as a set-address/read-data pair.
 
 ```javascript
-await ab.writeSpecial(0x1A)
-const data = await ab.readBuffer(4)
+await ab.sendBtye(0x1A)
+const data = await ab.i2cRead(4)
 ```
 
-#### `writeBuffer`
+#### `i2cWrite`
 Write the given data.
 Implementation specific behavior, however, some devices use this in conjunction with `writeSpecial`.
 
 ```javascript
-await ab.writeSpecial(0x1A)
-const data = await ab.writeBuffer(Buffer.from([3, 5, 7, 9]))
+await ab.sendBtye(0x1A)
+const data = await ab.i2cWrite(Uint8Array.from([3, 5, 7, 9]))
 ```
 
 ## :book: I2CMockBus
@@ -222,7 +221,3 @@ Useful for simulating full mocks or persistent data.  Also when complex read / w
 ## :book: I2CScriptBus
 An `I2CBus` implementation that uses an ordered script to govern api call interactions.
 
-## :book: ClassSelector
-**Try not to use this.** It is a poor attempt to write a more functional way of selecting `class` definitions based on conditions.
-
-It can serve as a usefull standin for limited language support for expressive `switch`/`case`.

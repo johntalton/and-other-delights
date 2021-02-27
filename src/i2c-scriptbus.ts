@@ -39,7 +39,7 @@ export class I2CScriptBus implements I2CBus {
     if(nextNode.method === 'no-debug') { this.debug = false; this.scriptIndex += 1 }
 
     const scriptNode = this.script[this.scriptIndex]
-    if(this.debug) { console.log(name, 'scriptNode:', scriptNode) }
+    if(this.debug) { console.debug(name, 'scriptNode:', scriptNode) }
     if(scriptNode.method === 'throw') { throw new Error(scriptNode.result as string) }
     if(scriptNode.method !== name) {
       throw new Error('invalid script step #' + this.scriptIndex)
@@ -58,7 +58,6 @@ export class I2CScriptBus implements I2CBus {
   }
 
   async readI2cBlock(_address: I2CAddress, _cmd: number, _length: number, _bufferSource: I2CBufferSource): Promise<I2CReadResult> {
-    console.log('readI2cBlock')
     const scriptNode = this.validate('readI2cBlock')
     return Promise.resolve(scriptNode.result as I2CReadResult)
   }

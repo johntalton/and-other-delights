@@ -1,27 +1,28 @@
+/* eslint-disable fp/no-unused-expression */
 /* eslint-disable no-magic-numbers */
 import { describe, it } from 'mocha'
 import { expect } from 'chai'
 
 // eslint-disable-next-line sort-imports
-import { BusUtil, EOS_SCRIPT, I2CAddressedBus, Script, I2CScriptBus } from './aod'
+import { BusUtil, EOS_SCRIPT, I2CAddressedBus, I2CScriptBus } from './aod.js'
 
-const READ_SINGLE_SCRIPT: Script = [
+const READ_SINGLE_SCRIPT = [
   { method: 'readI2cBlock', parameters: [0x37], result: { bytesRead: 2, buffer: new Uint8Array([3, 5]) } },
   ...EOS_SCRIPT
 ]
 
-const READ_MULTI_SCRIPT: Script = [
+const READ_MULTI_SCRIPT = [
   { method: 'readI2cBlock', parameters: [0x37], result: { bytesRead: 2, buffer: new Uint8Array([3, 5]) } },
   { method: 'readI2cBlock', parameters: [0x42], result: { bytesRead: 4, buffer: new Uint8Array([7, 9, 11, 13]) } },
   ...EOS_SCRIPT
 ]
 
-const WRITE_SINGLE_SCRIPT: Script = [
+const WRITE_SINGLE_SCRIPT = [
   { method: 'writeI2cBlock', parameters: [0, 1, 2], result: { bytesWritten: 2, buffer: new Uint8Array([]) } },
   ...EOS_SCRIPT
 ]
 
-const WRITE_MULTI_SCRIPT: Script = [
+const WRITE_MULTI_SCRIPT = [
   { method: 'writeI2cBlock', parameters: [0, 1, 2], result: { bytesWritten: 2, buffer: new ArrayBuffer(2) } },
   { method: 'writeI2cBlock', parameters: [0, 4, 4], result: { bytesWritten: 4, buffer: new ArrayBuffer(4) } },
   ...EOS_SCRIPT

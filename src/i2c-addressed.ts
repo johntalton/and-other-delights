@@ -5,6 +5,18 @@ const WARN_WRITE_LENGTH = 32
 
 const DEFAULT_FILL = 0
 
+function assertBufferSource(bs) {
+  if(bs === undefined) {
+    throw new Error('bufferSource undefined')
+  }
+  const isView = ArrayBuffer.isView(bs)
+  const isAB = bs instanceof ArrayBuffer
+
+  if(!isView && !isAB) {
+    throw new Error('bufferSource is not ArrayBuffer or ArrayBufferView')
+  }
+}
+
 /**
  * Wraps an `I2CBus` to provide address and buffer management.
  **/
@@ -60,25 +72,16 @@ export class I2CAddressedBus implements I2CManagedBus {
   close(): void { return this._bus.close() }
 
   async readI2cBlock(cmd: number, length: number): Promise<ArrayBuffer> {
-    if(length > WARN_READ_LENGTH) { console.log('over max recommended r length', length) }
+    if(length > WARN_READ_LENGTH) { console.warn('over max recommended r length', length) }
     const { bytesRead, buffer } = await this._bus.readI2cBlock(this._address, cmd, length, this._getReadBuffer(length))
     if(bytesRead !== length) { throw new Error('read length mismatch') }
     return buffer.slice(0, bytesRead)
   }
 
   async writeI2cBlock(cmd: number, bufferSource: I2CBufferSource): Promise<void> {
-    if(bufferSource === undefined) {
-      throw new Error('use specific single byte call')
-    }
+    assertBufferSource(bufferSource)
 
-    const isView = ArrayBuffer.isView(bufferSource)
-    const isAB = bufferSource instanceof ArrayBuffer
-
-    if(!isView && !isAB) {
-      throw new Error('not a bufferSource')
-    }
-
-    if(bufferSource.byteLength > WARN_WRITE_LENGTH) { console.log('over max recommend w length') }
+    if(bufferSource.byteLength > WARN_WRITE_LENGTH) { console.warn('over max recommend w length') }
     const { bytesWritten } = await this._bus.writeI2cBlock(this._address, cmd, bufferSource.byteLength, bufferSource)
     if(bytesWritten !== bufferSource.byteLength) {
       throw new Error('write length mismatch: ' + bytesWritten + '/' + bufferSource.byteLength)
@@ -96,12 +99,7 @@ export class I2CAddressedBus implements I2CManagedBus {
   }
 
   async i2cWrite(bufferSource: I2CBufferSource): Promise<void> {
-    const isView = ArrayBuffer.isView(bufferSource)
-    const isAB = bufferSource instanceof ArrayBuffer
-
-    if(!isView && !isAB) {
-      throw new Error('not a bufferSource')
-    }
+    assertBufferSource(bufferSource)
 
     const { bytesWritten } = await this._bus.i2cWrite(this._address, bufferSource.byteLength, bufferSource)
     if(bytesWritten !== bufferSource.byteLength) { throw new Error('write length mismatch') }

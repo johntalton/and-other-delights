@@ -1,13 +1,12 @@
 {
   "name": "@johntalton/and-other-delights",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "description": "",
   "main": "lib/aod.js",
   "exports": {
-    "import": "./src/aod.mjs",
-    "require": "./lib/aod.js"
+    "import": "./lib/aod.js"
   },
-  "type": "commonjs",
+  "type": "module",
   "files": [
     "src/aod.mjs",
     "lib/**/*.js",
@@ -27,6 +26,7 @@
     "build": "tsc -p .",
     "build:watch": "npm run build -- -w",
     "test": "npm run test:mocha",
+    "test:mochaX": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }'  mocha",
     "test:mocha": "mocha",
     "coverage": "npm --silent run coverage:nyc",
     "coverage:nyc": "nyc npm run test:mocha -- --reporter min",
@@ -39,7 +39,7 @@
       "@johntalton/eslint-config/ts"
     ],
     "env": {
-      "node": true
+      "node": false
     },
     "ignorePatterns": "test/**/*.ts",
     "rules": {
@@ -61,7 +61,7 @@
   },
   "mocha": {
     "spec": [
-      "test/*.spec.ts"
+      "test/*.spec.js"
     ],
     "grep": "@broken|@slow",
     "invert": true,
@@ -72,11 +72,7 @@
     "sort": false,
     "forbitOnly": true,
     "check-leaks": true,
-    "global": [],
-    "require": [
-      "source-map-support/register",
-      "ts-node/register/transpile-only"
-    ]
+    "global": []
   },
   "nyc": {
     "include": [

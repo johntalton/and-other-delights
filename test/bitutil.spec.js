@@ -1,17 +1,20 @@
+/* eslint-disable semi */
+/* eslint-disable fp/no-unused-expression */
 /* eslint-disable no-magic-numbers */
 
 import { describe, it } from 'mocha';
 import { expect } from 'chai';
 
 // eslint-disable-next-line sort-imports
-import { BitUtil, PackMap } from './aod';
+import { BitUtil } from './aod.js';
+
 
 describe('BitUtil', () => {
   describe('#packBits', () => {
     //
     it('should run README example', () => {
       const source = [1, 3, 2];
-      const template: PackMap = [ [6, 1], [5, 3], [1, 2] ];
+      const template = [ [6, 1], [5, 3], [1, 2] ];
       const expected = 0b0_1_011_0_10;
       const outRegister = BitUtil.packBits(template, source);
       expect(outRegister).to.equal(expected);
@@ -19,7 +22,7 @@ describe('BitUtil', () => {
 
     it('should run README example second half', () => {
       const inRegister = 0x5A;
-      const template: PackMap = [ [6, 1], [5, 3], [1, 2] ];
+      const template = [ [6, 1], [5, 3], [1, 2] ];
       const [one, three, two] = BitUtil.unpackBits(template, inRegister);
       expect(one).to.equal(1);
       expect(two).to.equal(2);
@@ -27,28 +30,28 @@ describe('BitUtil', () => {
     });
 
     it('should throw error if template (type violation zero) @typeViolation', () => {
-      const pm: unknown = [[]];
-      expect(() => BitUtil.packBits(pm as PackMap, null)).to.throw('zero');
+      const pm = [[]];
+      expect(() => BitUtil.packBits(pm, [])).to.throw('zero');
     });
 
     it('should throw error if template (type violation gt 2) @typeViolation', () => {
-      const pm: unknown = [[1, 2, 3]];
-      expect(() => BitUtil.packBits(pm as PackMap, null)).to.throw('gt 2');
+      const pm = [[1, 2, 3]];
+      expect(() => BitUtil.packBits(pm, [])).to.throw('gt 2');
     });
 
     it('should throw error if template (type violation offset) @typeViolation', () => {
-      const pm: unknown = [['offset', 1]];
-      expect(() => BitUtil.packBits(pm as PackMap, null)).to.throw('offset');
+      const pm = [['offset', 1]];
+      expect(() => BitUtil.packBits(pm, [])).to.throw('offset');
     });
 
     it('should throw error if template (type violation length) @typeViolation', () => {
-      const pm: unknown = [[0, 'length']];
-      expect(() => BitUtil.packBits(pm as PackMap, null)).to.throw('length');
+      const pm = [[0, 'length']];
+      expect(() => BitUtil.packBits(pm, [])).to.throw('length');
     });
 
     it('should throw error if template (type violation type) @typeViolation', () => {
-      const pm: unknown = [false];
-      expect(() => BitUtil.packBits(pm as PackMap, null)).to.throw('type');
+      const pm = [false];
+      expect(() => BitUtil.packBits(pm, [])).to.throw('type');
     });
 
     it.skip('should throw error if template (overlap) @broken', () => {

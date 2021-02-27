@@ -1,3 +1,4 @@
+/* eslint-disable fp/no-unused-expression */
 import { describe, it } from 'mocha'
 import { expect } from 'chai'
 
@@ -5,43 +6,43 @@ import { expect } from 'chai'
 import {
   EOS_SCRIPT,
   I2CAddressedBus,
-  I2CScriptBus, Script,
+  I2CScriptBus,
   ThrowBus
-} from './aod'
+} from './aod.js'
 
 const SCRIPT_BUS_ADDRESS = 0x00
 
-const SCRIPT: Script = [
+const SCRIPT = [
   ...EOS_SCRIPT
 ]
 
-const CLOSE_SCRIPT: Script = [
+const CLOSE_SCRIPT = [
   { method: 'close' },
   ...EOS_SCRIPT
 ]
 
-const READ_SCRIPT: Script = [
-  { method: 'readI2cBlock', result: { bytesRead: 2, buffer: Buffer.from([3, 5]) } },
+const READ_SCRIPT = [
+  { method: 'readI2cBlock', result: { bytesRead: 2, buffer: Uint8Array.from([3, 5]).buffer } },
   ...CLOSE_SCRIPT
 ]
 
-const WRITE_SCRIPT: Script = [
-  { method: 'writeI2cBlock', result: { bytesWritten: 2, buffer: Buffer.from([3, 5]) } },
+const WRITE_SCRIPT = [
+  { method: 'writeI2cBlock', result: { bytesWritten: 2, buffer: Uint8Array.from([3, 5]).buffer } },
   ...CLOSE_SCRIPT
 ]
 
-const SPECIAL_SCRIPT: Script = [
+const SPECIAL_SCRIPT = [
   { method: 'sendByte' },
   ...CLOSE_SCRIPT
 ]
 
-const BUFFER_READ_SCRIPT: Script = [
-  { method: 'i2cRead', result: { bytesRead: 7, buffer: Buffer.from([]) } },
+const BUFFER_READ_SCRIPT = [
+  { method: 'i2cRead', result: { bytesRead: 7, buffer: new ArrayBuffer() } },
   ...CLOSE_SCRIPT
 ]
 
-const BUFFER_WRITE_SCRIPT: Script = [
-  { method: 'i2cWrite', result: { bytesWritten: 0, buffer: Buffer.from([]) } },
+const BUFFER_WRITE_SCRIPT = [
+  { method: 'i2cWrite', result: { bytesWritten: 0, buffer: new ArrayBuffer() } },
   ...CLOSE_SCRIPT
 ]
 
@@ -100,7 +101,7 @@ describe('I2CAddressedBus', () => {
     it('should read bytes', async () => {
       const sb = await I2CScriptBus.openPromisified(READ_SCRIPT)
       const ab = new I2CAddressedBus(sb, SCRIPT_BUS_ADDRESS)
-      expect(await ab.readI2cBlock(0x02, 2)).to.deep.equal(Buffer.from([3, 5]))
+      expect(await ab.readI2cBlock(0x02, 2)).to.deep.equal(Uint8Array.from([3, 5]).buffer)
     })
   })
 
@@ -125,7 +126,7 @@ describe('I2CAddressedBus', () => {
       const sb = await I2CScriptBus.openPromisified(BUFFER_READ_SCRIPT)
       const ab = new I2CAddressedBus(sb, 0x00)
       const buffer = await ab.i2cRead(7)
-      expect(buffer).to.deep.equal(Buffer.from([]))
+      expect(buffer).to.deep.equal(new ArrayBuffer())
     })
   })
 

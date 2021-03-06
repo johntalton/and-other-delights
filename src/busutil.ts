@@ -4,16 +4,10 @@
 /* eslint-disable no-loops/no-loops */
 /* eslint-disable fp/no-loops */
 /* eslint-disable immutable/no-let */
-import { I2CAddressedBus } from './aod'
+import { I2CAddressedBus } from './i2c-addressed'
 
-const BASE_10 = 10
-
-export type NormalizedBlock = [number, number]
-export type BlockDefinition = Array<(NormalizedBlock | [number] | number)>
-export type NormalizedBlockDefinition = Array<NormalizedBlock>
-
-const ITEM_LENGTH = 2
-const LENGTH_OF_ONE = 1
+export type Block = [number, number]
+export type BlockList = Array<Block>
 
 export type UtilBufferSource = ArrayBuffer | ArrayBufferView | SharedArrayBuffer
 
@@ -21,82 +15,61 @@ export type UtilBufferSource = ArrayBuffer | ArrayBufferView | SharedArrayBuffer
  *
  **/
 export class BusUtil {
-  /**
-   * Normalizes a Block Definitions into it strict form.
-   *
-   * Feature: enable compact runs flag.
-   * Feature: validate ascending address order.
-   * Feature: validate non-overlapping runs.
-   *
-   * Disabling strict warnings will suppress the console output if you
-   * wish to allow for shorthand definitions.
-   *
-   * @param block Input template for normalization.
-   * @param warnStrict If true, console log non-normal format.
-   * @returns Array of the Normalized Block, the source Data length
-   *  associated with it and the total block length defined by the template.
-   */
-  private static normalizeBlock(block: BlockDefinition, warnStrict = true): [NormalizedBlockDefinition, number, number] {
-    // normalize block from shorthand (aka [[37, 1], [37], 37] are all the same)
-    const normalizedBlock: NormalizedBlockDefinition = block.map(item => {
-      if(Array.isArray(item)) {
-        if(item.length !== ITEM_LENGTH) {
-          const [first] = item
-          if(first === undefined) {
-            throw new Error('unexpected format: ' + JSON.stringify(block))
-          }
-          if(warnStrict) {
-            console.warn('normalizeBlock: sloppy format (length)', item)
-          }
-          return [first, LENGTH_OF_ONE]
-        }
-        return item
-      }
+  private static assertNormalBlock(blocks: BlockList) {
+    if(blocks.length < 0) { throw new Error('blocks must be zero or greater in length') }
 
-      if(warnStrict) { console.warn('normalizeBlock: sloppy format', item) }
-      return [item, LENGTH_OF_ONE]
+    // eslint-disable-next-line fp/no-unused-expression
+    blocks.forEach((item, index) => {
+      const [ reg, len ] = item
+      if(!Number.isInteger(reg)) { throw new Error('block item ' + index + ': invalid register value') }
+      if(!Number.isInteger(len)) { throw new Error('block item ' + index + ': invalid length value') }
     })
-    // make it all int-like - is this overkill, yes
-    // is this even needed with type checking
-    // note that this does not account for NaN
-    .map(([reg, len]) => [parseInt(reg.toString(), BASE_10), parseInt(len.toString(), BASE_10)])
-
-    // and the totals...
-    // calculate the required source data length, the packed version of the data
-    const sourceDataLength = normalizedBlock.reduce((out, [ , len]) => out + len, 0)
-    // calculate the total unpacked length defined by the block
-    const blockLength = normalizedBlock.reduce((out, [reg, len]) => Math.max(out, reg + len), 0)
-
-    return [normalizedBlock, sourceDataLength, blockLength]
+    return true
   }
+
+  private static sourceDataLength(blocks: BlockList) {
+    BusUtil.assertNormalBlock(blocks)
+
+    // calculate the required source data length, the packed version of the data
+    return blocks.reduce((out, [ , len]) => out + len, 0)
+  }
+
+  private static blockLength(blocks: BlockList) {
+    BusUtil.assertNormalBlock(blocks)
+
+    // calculate the total unpacked length defined by the block
+    return blocks.reduce((out, [reg, len]) => Math.max(out, reg + len), 0)
+  }
+  // return [normalizedBlock, sourceDataLength, blockLength]
 
   /**
    * Read from a bus given the block definition.
    *
    * @param bus The addressed bus to read from.
    * @param block A register Block template used to read.
-   * @param warnNotNormal If true, emit console warnings about short hand usage.
-   * @returns} A Promise the resolves to the read Buffer.
+   * @returns A Promise the resolves to the read Buffer.
    *
    **/
-  static async readBlock(bus: I2CAddressedBus, block: BlockDefinition, warnNotNormal = true): Promise<ArrayBuffer> {
-    const [
-      normalBlocks,
-      totalLength
-    ] = BusUtil.normalizeBlock(block, warnNotNormal)
+  static async readI2cBlocks(abus: I2CAddressedBus, blocks: BlockList, sourceBufferOrNull: UtilBufferSource|undefined = undefined): Promise<ArrayBuffer> {
+    BusUtil.assertNormalBlock(blocks)
 
-    const out = new Uint8Array(totalLength)
+    const totalLength = BusUtil.sourceDataLength(blocks)
+    const sourceBuffer = sourceBufferOrNull ?? new ArrayBuffer(totalLength)
+
+    const buffer = ArrayBuffer.isView(sourceBuffer) ?
+      new Uint8Array(sourceBuffer.buffer, sourceBuffer.byteOffset, sourceBuffer.byteLength) :
+      new Uint8Array(sourceBuffer)
 
     let cursor = 0
-    for(const x of normalBlocks) {
-      const [ reg, len ] = x
+    for(const block of blocks) {
+      const [ reg, len ] = block
       try {
-        const buffer = await bus.readI2cBlock(reg, len)
-        out.set(new Uint8Array(buffer), cursor)
+        const abuffer = await abus.readI2cBlock(reg, len)
+        buffer.set(new Uint8Array(abuffer), cursor)
         cursor += len
       } catch (e) { console.warn({ e }); throw e }
     }
-    return out.buffer
+    return buffer.buffer
   }
 
   /**
@@ -105,32 +78,36 @@ export class BusUtil {
    * @param bus The addressed bus to write to.
    * @param block A register Block template used to write.
    * @param buffer A buffer of the bytes of data to be written.
-   * @param warnNotNormal If true, enabled warnings about non-normal format.
    * @returns Promise resolving once data is written.
    *
    * Note: When using multi block interactions, each block is async
    * by nature and is not guaranteed by this call to not be
    * interrupted or delayed by other bus activity.
+   * As such, it is suggested that the bus be a concrete instance,
+   * and thus run withing a single event loop. Attempting to abstract
+   * this call over async interfaces will not always result as expected.
    **/
-  static writeBlock(
-    bus: I2CAddressedBus,
-    block: BlockDefinition,
-    sourceBuffer: UtilBufferSource,
-    warnNotNormal = true): Promise<void> {
+  static writeI2cBlocks(
+    abus: I2CAddressedBus,
+    blocks: BlockList,
+    sourceBuffer: UtilBufferSource): Promise<void> {
 
-    const buffer = ArrayBuffer.isView(sourceBuffer) ? sourceBuffer : new Uint8Array(sourceBuffer)
+    BusUtil.assertNormalBlock(blocks)
 
-    const [
-      normalBlock,
-      totalLength,
-      max] = BusUtil.normalizeBlock(block, warnNotNormal)
+
+    const buffer = ArrayBuffer.isView(sourceBuffer) ?
+      new Uint8Array(sourceBuffer.buffer, sourceBuffer.byteOffset, sourceBuffer.byteLength) :
+      new Uint8Array(sourceBuffer)
+
+    const totalLength = BusUtil.sourceDataLength(blocks)
+    const max = BusUtil.blockLength(blocks)
 
     if(max > buffer.byteLength) {
       throw new Error('max address is outside buffer length')
     }
 
-    return Promise.all(normalBlock.map(([reg, len]) => {
-      return bus.writeI2cBlock(reg, buffer.subarray(reg, reg + len))
+    return Promise.all(blocks.map(([reg, len]) => {
+      return abus.writeI2cBlock(reg, buffer.subarray(reg, reg + len))
         .then(() => len)
     }))
     .then(lengths => lengths.reduce((acc, item) => acc + item, 0))
@@ -152,7 +129,7 @@ export class BusUtil {
    * @param warnNotNormal If true, enabled warnings about non-normal format.
    * @returns A Buffer filled and extended given the template.
    **/
-  static expandBlock(block: BlockDefinition, buffer: UtilBufferSource, fill = 0, warnNotNormal = true): Buffer {
+  /*static expandBlock(block: BlockDefinition, sourceBuffer: UtilBufferSource, fill = 0, warnNotNormal = true): ArrayBuffer {
     const [normalBlock, totalLength, max] = BusUtil.normalizeBlock(block, warnNotNormal)
     if(buffer.length !== totalLength) { throw new Error('buffer length mismatch') }
 
@@ -179,5 +156,5 @@ export class BusUtil {
       const result = Buffer.concat([pad, data])
       return result
     }), max)
-  }
+  }*/
 }

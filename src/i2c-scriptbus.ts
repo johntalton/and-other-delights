@@ -1,4 +1,4 @@
-import { I2CAddress, I2CBufferSource, I2CBus, I2CReadResult, I2CWriteResult } from './aod'
+import { I2CAddress, I2CBufferSource, I2CBus, I2CReadResult, I2CWriteResult } from './i2c'
 
 export type ScriptEntry = {
   method: string,
@@ -42,7 +42,7 @@ export class I2CScriptBus implements I2CBus {
     if(this.debug) { console.debug(name, 'scriptNode:', scriptNode) }
     if(scriptNode.method === 'throw') { throw new Error(scriptNode.result as string) }
     if(scriptNode.method !== name) {
-      throw new Error('invalid script step #' + this.scriptIndex)
+      throw new Error('invalid script step #' + this.scriptIndex + ' ' + name + ' / ' + scriptNode.method)
     }
     this.scriptIndex += 1
     return scriptNode

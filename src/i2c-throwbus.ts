@@ -5,8 +5,7 @@
 /* eslint-disable immutable/no-mutation */
 /* eslint-disable fp/no-nil */
 /* eslint-disable fp/no-class */
-import { I2CBufferSource, I2CBus, I2CReadResult, I2CWriteResult } from './aod'
-import { I2CAddress } from './i2c'
+import { I2CAddress, I2CBufferSource, I2CBus, I2CReadResult, I2CWriteResult } from './i2c'
 
 export class ThrowBus implements I2CBus {
   private _name: string

@@ -4,7 +4,7 @@
   "description": "",
   "main": "lib/aod.js",
   "exports": {
-    "import": "./lib/aod.js"
+    "import": "./src/aod.mjs"
   },
   "type": "module",
   "files": [

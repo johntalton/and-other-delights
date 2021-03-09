@@ -2,7 +2,7 @@
   "name": "@johntalton/and-other-delights",
   "version": "6.0.0",
   "description": "",
-  "main": "lib/aod.js",
+  "main": "src/aod.mjs",
   "exports": {
     "import": "./src/aod.mjs"
   },
@@ -98,7 +98,6 @@
       "text-summary"
     ]
   },
-  "dependencies": {},
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "@johntalton/eslint-config": "^2.0.0",

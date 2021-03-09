@@ -58,12 +58,12 @@ describe('I2CAddressedBus', () => {
       expect(async () => I2CAddressedBus.from(await ThrowBus.openPromisified('go throw'), 0x00)).to.not.throw()
     })
 
-    it('should be frozen', async () => {
-      const tb = await ThrowBus.openPromisified('frozen throw')
-      const ab = await I2CAddressedBus.from(tb, 0x00)
+    // it('should be frozen', async () => {
+    //   const tb = await ThrowBus.openPromisified('frozen throw')
+    //   const ab = await I2CAddressedBus.from(tb, 0x00)
 
-      expect(ab).to.be.frozen // eslint-disable-line no-unused-expressions
-    })
+    //   expect(ab).to.be.frozen // eslint-disable-line no-unused-expressions
+    // })
   })
 
   describe('#name', () => {

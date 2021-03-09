@@ -76,6 +76,7 @@ describe('BusUtil', () => {
     })
   })
 
+  /*
   describe('#expandBlock', () => {
     it('should pass most basic 1:1 test', () => {
       expect(BusUtil.expandBlock([0], Buffer.from([3]), 0xFE, false)).to.deep.equal(Buffer.from([3]))
@@ -130,4 +131,5 @@ describe('BusUtil', () => {
       expect(BusUtil.expandBlock([[0x01, 2], [0x4, 4]], Buffer.from([3, 5, 7, 9, 11, 13]))).to.deep.equal(Buffer.from([0, 3, 5, 0, 7, 9, 11, 13]))
     })
   })
+  */
 })

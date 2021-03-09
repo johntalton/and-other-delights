@@ -129,7 +129,8 @@ export class BusUtil {
    * @param warnNotNormal If true, enabled warnings about non-normal format.
    * @returns A Buffer filled and extended given the template.
    **/
-  /*static expandBlock(block: BlockDefinition, sourceBuffer: UtilBufferSource, fill = 0, warnNotNormal = true): ArrayBuffer {
+  /*
+  static expandBlock(block: BlockDefinition, sourceBuffer: UtilBufferSource, fill = 0, warnNotNormal = true): ArrayBuffer {
     const [normalBlock, totalLength, max] = BusUtil.normalizeBlock(block, warnNotNormal)
     if(buffer.length !== totalLength) { throw new Error('buffer length mismatch') }
 
@@ -156,5 +157,6 @@ export class BusUtil {
       const result = Buffer.concat([pad, data])
       return result
     }), max)
-  }*/
+  }
+  */
 }

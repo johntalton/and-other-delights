@@ -69,7 +69,6 @@ export class BitUtil {
   static unpackBits(packMap: PackMap, bits: number, warnNotNormal = true): Array<number> {
     return BitUtil.normalizePackMap(packMap, warnNotNormal)
       .map(([position, length]) => {
-        // console.log('unpacking', bits.toString(2), position, length)
         return BitUtil.mapBits(bits, position, length)
       })
   }
@@ -113,7 +112,7 @@ export class BitUtil {
 
         // if it only has on item, then its assumed length is one
         if(item.length === 1) {
-          if(warnStrict) { console.log('sloppy packMap format', item) }
+          if(warnStrict) { console.warn('sloppy packMap format', item) }
           const [first] = item
           return [first, DEFAULT_LENGTH]
         }
@@ -136,7 +135,7 @@ export class BitUtil {
       }
 
       if(Number.isInteger(item)) {
-        if(warnStrict) { console.log('sloppy packMap format', item) }
+        if(warnStrict) { console.warn('sloppy packMap format', item) }
         return [item, DEFAULT_LENGTH]
       }
 
@@ -144,7 +143,7 @@ export class BitUtil {
     })
 
     if(!BitUtil.isOrdered(normalPackMap)) {
-      if(warnStrict) { console.log('sloppy packMap format (order)') }
+      if(warnStrict) { console.warn('sloppy packMap format (order)') }
     }
 
     if(!BitUtil.isNonOverlapping(normalPackMap)) {
@@ -182,12 +181,10 @@ export class BitUtil {
       if(shift < 0) {
         const size = BIT_SIZE + shift // not addition is negative subtraction
         const mask = BitUtil.mask(size)
-        // console.log('last part #', index, shift, size, mask, part)
         return part & mask
       }
 
       const mask = BitUtil.mask(BIT_SIZE)
-      // console.log('part #', index, shift, mask, part)
       return (part & mask) << shift
     })
     .reduce((acc, part) => acc | part, ZERO)

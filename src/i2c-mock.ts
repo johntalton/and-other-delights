@@ -12,7 +12,7 @@ import {
   I2CBus,
   I2CReadResult,
   I2CWriteResult
-} from './aod'
+} from './i2c'
 
 // types for static device definition
 type MockDefinition_RegisterProperty = Array<Record<string, { bit?: number, bits?: Array<number>, enum?: Record<number, string> }>>

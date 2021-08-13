@@ -1,5 +1,5 @@
 # And Other Delights
-A simple set of abstraction and helpers useful when writing sensor libraries.
+A simple set of abstraction and helpers useful when working with I  C
 
 [![npm Version](https://img.shields.io/npm/v/@johntalton/and-other-delights.svg)](https://www.npmjs.com/package/@johntalton/and-other-delights)
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/johntalton/and-other-delights/and-other-delights)

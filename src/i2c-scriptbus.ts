@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 import { I2CAddress, I2CBufferSource, I2CBus, I2CReadResult, I2CWriteResult } from './i2c'
 
 export type ScriptEntry = {
@@ -10,6 +11,14 @@ export type Script = Array<ScriptEntry>
 export const EOS_SCRIPT: Script = [
   { method: 'throw', result: 'end of script' }
 ]
+
+// async function* scriptStream(queue) {
+//   port.on('message', msg => {
+//     yield msg
+//   })
+// }
+
+
 /**
  *
  */
@@ -32,6 +41,10 @@ export class I2CScriptBus implements I2CBus {
   }
 
   get name(): string { return this._name }
+
+  // appendScript(script: Script): void {
+  //   this.script.concat(script)
+  // }
 
   private validate(name: string): ScriptEntry {
     const nextNode = this.script[this.scriptIndex]

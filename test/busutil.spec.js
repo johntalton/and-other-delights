@@ -1,49 +1,50 @@
+/* eslint-disable fp/no-unused-expression */
 /* eslint-disable no-magic-numbers */
 import { describe, it } from 'mocha'
 import { expect } from 'chai'
 
 // eslint-disable-next-line sort-imports
-import { BusUtil, EOS_SCRIPT, I2CAddressedBus, Script, I2CScriptBus } from './aod'
+import { BusUtil, EOS_SCRIPT, I2CAddressedBus, I2CScriptBus } from './aod.js'
 
-const READ_SINGLE_SCRIPT: Script = [
+const READ_SINGLE_SCRIPT = [
   { method: 'readI2cBlock', parameters: [0x37], result: { bytesRead: 2, buffer: new Uint8Array([3, 5]) } },
   ...EOS_SCRIPT
 ]
 
-const READ_MULTI_SCRIPT: Script = [
+const READ_MULTI_SCRIPT = [
   { method: 'readI2cBlock', parameters: [0x37], result: { bytesRead: 2, buffer: new Uint8Array([3, 5]) } },
   { method: 'readI2cBlock', parameters: [0x42], result: { bytesRead: 4, buffer: new Uint8Array([7, 9, 11, 13]) } },
   ...EOS_SCRIPT
 ]
 
-const WRITE_SINGLE_SCRIPT: Script = [
+const WRITE_SINGLE_SCRIPT = [
   { method: 'writeI2cBlock', parameters: [0, 1, 2], result: { bytesWritten: 2, buffer: new Uint8Array([]) } },
   ...EOS_SCRIPT
 ]
 
-const WRITE_MULTI_SCRIPT: Script = [
+const WRITE_MULTI_SCRIPT = [
   { method: 'writeI2cBlock', parameters: [0, 1, 2], result: { bytesWritten: 2, buffer: new ArrayBuffer(2) } },
   { method: 'writeI2cBlock', parameters: [0, 4, 4], result: { bytesWritten: 4, buffer: new ArrayBuffer(4) } },
   ...EOS_SCRIPT
 ]
 
 describe('BusUtil', () => {
-  describe('#readBlock', () => {
+  describe('#readI2cBlocks', () => {
     it('should return empty on empty block read', async () => {
       const ab = new I2CAddressedBus(await I2CScriptBus.openPromisified(EOS_SCRIPT), 0x00)
-      const result = await BusUtil.readBlock(ab, [])
+      const result = await BusUtil.readI2cBlocks(ab, [])
       expect(result).to.deep.equal(new ArrayBuffer(0))
     })
 
     it('should read a simple block', async () => {
       const ab = new I2CAddressedBus(await I2CScriptBus.openPromisified(READ_SINGLE_SCRIPT), 0x00)
-      const result = await BusUtil.readBlock(ab, [[0, 2]])
+      const result = await BusUtil.readI2cBlocks(ab, [[0, 2]])
       expect(new Uint8Array(result)).to.deep.equal(new Uint8Array([3, 5]))
     })
 
     it('should read a multi block', async () => {
       const ab = new I2CAddressedBus(await I2CScriptBus.openPromisified(READ_MULTI_SCRIPT), 0x00)
-      const result = await BusUtil.readBlock(ab, [[0x37, 2], [0x42, 4]])
+      const result = await BusUtil.readI2cBlocks(ab, [[0x37, 2], [0x42, 4]])
       expect(new Uint8Array(result)).to.deep.equal(new Uint8Array([3, 5, 7, 9, 11, 13]))
     })
 
@@ -53,28 +54,29 @@ describe('BusUtil', () => {
     })
   })
 
-  describe('#writeBlock', () => {
+  describe('#writeI2cBlocks', () => {
     it('should write empty on empty block', async () => {
       const ab = new I2CAddressedBus(await I2CScriptBus.openPromisified(EOS_SCRIPT), 0x00)
-      await BusUtil.writeBlock(ab, [], new Uint8Array([]))
+      await BusUtil.writeI2cBlocks(ab, [], new Uint8Array([]))
     })
 
     it('should write simple byte single block', async () => {
       const ab = new I2CAddressedBus(await I2CScriptBus.openPromisified(WRITE_SINGLE_SCRIPT), 0x00)
-      await BusUtil.writeBlock(ab, [[0x01, 2]], new Uint8Array([0, 3, 5]))
+      await BusUtil.writeI2cBlocks(ab, [[0x01, 2]], new Uint8Array([0, 3, 5]))
     })
 
     it('should write simple block', async () => {
       const ab = new I2CAddressedBus(await I2CScriptBus.openPromisified(WRITE_SINGLE_SCRIPT), 0x00)
-      await BusUtil.writeBlock(ab, [[0x01, 2]], new Uint8Array([0, 3, 5]))
+      await BusUtil.writeI2cBlocks(ab, [[0x01, 2]], new Uint8Array([0, 3, 5]))
     })
 
     it('should write multi block', async () => {
       const ab = new I2CAddressedBus(await I2CScriptBus.openPromisified(WRITE_MULTI_SCRIPT), 0x00)
-      await BusUtil.writeBlock(ab, [[0x01, 2], [0x4, 4]], new Uint8Array([0, 3, 5, 0, 7, 9, 11, 13]))
+      await BusUtil.writeI2cBlocks(ab, [[0x01, 2], [0x4, 4]], new Uint8Array([0, 3, 5, 0, 7, 9, 11, 13]))
     })
   })
 
+  /*
   describe('#expandBlock', () => {
     it('should pass most basic 1:1 test', () => {
       expect(BusUtil.expandBlock([0], Buffer.from([3]), 0xFE, false)).to.deep.equal(Buffer.from([3]))
@@ -129,4 +131,5 @@ describe('BusUtil', () => {
       expect(BusUtil.expandBlock([[0x01, 2], [0x4, 4]], Buffer.from([3, 5, 7, 9, 11, 13]))).to.deep.equal(Buffer.from([0, 3, 5, 0, 7, 9, 11, 13]))
     })
   })
+  */
 })

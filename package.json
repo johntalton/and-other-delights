@@ -1,13 +1,12 @@
 {
   "name": "@johntalton/and-other-delights",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "description": "",
-  "main": "lib/aod.js",
+  "main": "src/aod.mjs",
   "exports": {
-    "import": "./src/aod.mjs",
-    "require": "./lib/aod.js"
+    "import": "./src/aod.mjs"
   },
-  "type": "commonjs",
+  "type": "module",
   "files": [
     "src/aod.mjs",
     "lib/**/*.js",
@@ -27,10 +26,11 @@
     "build": "tsc -p .",
     "build:watch": "npm run build -- -w",
     "test": "npm run test:mocha",
+    "test:mochaX": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }'  mocha",
     "test:mocha": "mocha",
-    "coverage": "npm --silent run coverage:nyc",
+    "coverage": "npm --silent run coverage:c8",
     "coverage:nyc": "nyc npm run test:mocha -- --reporter min",
-    "coverage:c8": "c8 --check-coverage --all --lines 75 --functions 5 --branches 85 npm --silent run test:mocha -- --no-parallel --reporter min",
+    "coverage:c8": "c8 --check-coverage --all --lines 60 --functions 5 --branches 50 npm --silent run test:mocha -- --no-parallel --reporter min",
     "audit": "auditjs ossi --dev",
     "clean": "rm -r .nyc_output coverage lib node_modules package-lock.json aod.min.js aod.min.js.map"
   },
@@ -39,7 +39,7 @@
       "@johntalton/eslint-config/ts"
     ],
     "env": {
-      "node": true
+      "node": false
     },
     "ignorePatterns": "test/**/*.ts",
     "rules": {
@@ -61,7 +61,7 @@
   },
   "mocha": {
     "spec": [
-      "test/*.spec.ts"
+      "test/*.spec.js"
     ],
     "grep": "@broken|@slow",
     "invert": true,
@@ -72,11 +72,7 @@
     "sort": false,
     "forbitOnly": true,
     "check-leaks": true,
-    "global": [],
-    "require": [
-      "source-map-support/register",
-      "ts-node/register/transpile-only"
-    ]
+    "global": []
   },
   "nyc": {
     "include": [
@@ -102,39 +98,38 @@
       "text-summary"
     ]
   },
-  "dependencies": {},
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "@johntalton/eslint-config": "^2.0.0",
     "@types/chai": "^4.2.11",
-    "@types/mocha": "^8.0.0",
-    "@types/node": "^14.0.12",
-    "@typescript-eslint/eslint-plugin": "^4.0.0",
-    "@typescript-eslint/parser": "^4.0.1",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.0.0",
+    "@typescript-eslint/eslint-plugin": "^4.17.0",
+    "@typescript-eslint/parser": "^4.17.0",
     "auditjs": "^4.0.18",
     "c8": "^7.3.0",
-    "chai": "^4.2.0",
+    "chai": "^4.3.3",
     "eslint": "^7.2.0",
     "eslint-import-resolver-typescript": "^2.0.0",
     "eslint-plugin-fp": "^2.3.0",
     "eslint-plugin-functional": "^3.0.1",
     "eslint-plugin-immutable": "^1.0.0",
     "eslint-plugin-import": "^2.21.2",
-    "eslint-plugin-mocha": "^8.0.0",
+    "eslint-plugin-mocha": "^9.0.0",
     "eslint-plugin-no-loops": "^0.3.0",
     "eslint-plugin-no-use-extend-native": "^0.5.0",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-promise": "^5.0.0",
     "eslint-plugin-security": "^1.4.0",
-    "eslint-plugin-spellcheck": "0.0.17",
+    "eslint-plugin-spellcheck": "0.0.19",
     "js-beautify": "^1.11.0",
-    "mocha": "^8.1.1",
+    "mocha": "^9.0.0",
     "nyc": "^15.1.0",
     "source-map-support": "^0.5.19",
     "standard": "^16.0.1",
     "terser": "^5.0.0",
-    "ts-node": "^9.0.0",
-    "typescript": "^4.0.2"
+    "ts-node": "^10.0.0",
+    "typescript": "^4.2.3"
   },
   "repository": {
     "type": "git",

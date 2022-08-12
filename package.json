@@ -103,7 +103,7 @@
     "@johntalton/eslint-config": "^2.0.0",
     "@types/chai": "^4.2.11",
     "@types/mocha": "^9.0.0",
-    "@types/node": "^16.0.0",
+    "@types/node": "^18.7.2",
     "@typescript-eslint/eslint-plugin": "^4.17.0",
     "@typescript-eslint/parser": "^4.17.0",
     "auditjs": "^4.0.18",

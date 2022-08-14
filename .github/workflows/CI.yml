@@ -12,11 +12,11 @@ jobs:
       - run: npm install
       - run: npm run build
       - run: npm run format
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: lib
           path: lib/
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: aod.min
           path: aod.min*

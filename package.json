@@ -121,7 +121,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.0.0",
     "eslint-plugin-security": "^1.4.0",
-    "eslint-plugin-spellcheck": "0.0.19",
+    "eslint-plugin-spellcheck": "0.0.20",
     "js-beautify": "^1.11.0",
     "mocha": "^10.0.0",
     "nyc": "^15.1.0",

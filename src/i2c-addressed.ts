@@ -45,7 +45,7 @@ export interface _I2CAddressedBus {
  * I2CBus layer providing address encapsulation.
  **/
 export class I2CAddressedBus implements _I2CAddressedBus {
-	private readonly address: I2CAddress
+	readonly address: I2CAddress
 	private readonly bus: I2CBus
 	private readonly options: ABOptions
 

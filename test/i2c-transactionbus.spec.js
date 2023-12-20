@@ -14,7 +14,7 @@ describe('I2CTransactionBus', () => {
 		const proxy = { name: 'foo' }
 		const tbus = new I2CTransactionBus(proxy)
 		await tbus.transaction(bus => {
-			expect(bus.name).to.equal('TransactionBusProxy(#foo, 123)')
+			expect(bus.name).to.equal('TransactionBusProxy(#foo, 1)')
 		})
 	})
 })

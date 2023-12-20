@@ -19,7 +19,7 @@ export class I2CProxyBus implements I2CBus {
 	sendByte(address: number, byteValue: number): Promise<void> {
 		return this.bus.sendByte(address, byteValue)
 	}
-	readI2cBlock(address: number, cmd: number, length: number, bufferSource: I2CBufferSource): Promise<I2CReadResult> {
+	readI2cBlock(address: number, cmd: number, length: number, bufferSource?: I2CBufferSource): Promise<I2CReadResult> {
 		return this.bus.readI2cBlock(address, cmd, length, bufferSource)
 	}
 	writeI2cBlock(address: number, cmd: number, length: number, bufferSource: I2CBufferSource): Promise<I2CWriteResult> {

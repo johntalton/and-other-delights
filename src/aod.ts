@@ -3,6 +3,7 @@
 export * from './i2c.js'
 export * from './busutil.js'
 export * from './i2c-addressed.js'
+export * from './i2c-addressedtransaction.js'
 export * from './i2c-mock.js'
 export * from './i2c-scriptbus.js'
 export * from './i2c-throwbus.js'

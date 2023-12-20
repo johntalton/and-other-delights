@@ -29,10 +29,22 @@ export function assertBufferSource(bs: I2CBufferSource) {
 	}
 }
 
+export interface _I2CAddressedBus {
+	close(): void
+
+	readI2cBlock(cmd: number, length: number, readBufferSource?: I2CBufferSource): Promise<ArrayBuffer>
+	writeI2cBlock(cmd: number, bufferSource: I2CBufferSource): Promise<void>
+
+	sendByte(value: number): Promise<void>
+
+	i2cRead(length: number, readBufferSource?: I2CBufferSource): Promise<ArrayBuffer>
+	i2cWrite(bufferSource: I2CBufferSource): Promise<void>
+}
+
 /**
  * I2CBus layer providing address encapsulation.
  **/
-export class I2CAddressedBus {
+export class I2CAddressedBus implements _I2CAddressedBus {
 	private readonly address: I2CAddress
 	private readonly bus: I2CBus
 	private readonly options: ABOptions

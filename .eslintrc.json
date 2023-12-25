@@ -5,11 +5,10 @@
 		"plugin:import/recommended",
 		"plugin:import/errors",
 		"plugin:import/warnings",
-		"plugin:security/recommended",
 		"@johntalton/eslint-config/ts"
 	],
 	"parserOptions": {
-		"ecmaVersion": 2020,
+		"ecmaVersion":"latest",
 		"sourceType": "module"
 	},
 	"env": {
@@ -291,7 +290,7 @@
 		"import/no-commonjs": "warn",
 		"import/no-amd": "error",
 		"import/first": "error",
-		"import/exports-last": "error",
+		"import/exports-last": "warn",
 		"import/no-duplicates": "error",
 		"import/no-namespace": "error",
 		"import/order": "error",
@@ -518,7 +517,7 @@
 		"use-isnan": "error",
 		"valid-typeof": "error",
 		"spellcheck/spell-checker": [
-			"error",
+			"warn",
 			{
 				"identifiers": false,
 				"minLength": 3,

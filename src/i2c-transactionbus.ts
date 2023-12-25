@@ -33,7 +33,7 @@ export class I2CTransactionBus extends I2CProxyBus implements I2CBus {
 
 	get name() { return `TransactionBus(${this.bus.name})` }
 
-	async transaction<T>(cb: TransactionCallback<T>): Promise<any> {
+	async transaction<T>(cb: TransactionCallback<T>): Promise<T> {
 		console.log('*** transaction created')
 		const id = this.#nextTransactionID += 1
 		const proxyBus = new TransactionBusProxy(this.bus, id)

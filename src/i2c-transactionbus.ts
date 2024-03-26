@@ -22,7 +22,7 @@ export class I2CTransactionBus extends I2CProxyBus implements I2CBus {
 	#queue: Promise<unknown>
 	#nextTransactionID
 
-	static from(bus: I2CBus) { console.log('HEREHERE'); return new I2CTransactionBus(bus) }
+	static from(bus: I2CBus) { return new I2CTransactionBus(bus) }
 
 	constructor(bus: I2CBus) {
 		super(bus)
@@ -34,14 +34,14 @@ export class I2CTransactionBus extends I2CProxyBus implements I2CBus {
 	get name() { return `TransactionBus(${this.bus.name})` }
 
 	async transaction<T>(cb: TransactionCallback<T>): Promise<T> {
-		console.log('*** transaction created')
+		//console.log('*** transaction created')
 		const id = this.#nextTransactionID += 1
 		const proxyBus = new TransactionBusProxy(this.bus, id)
 		const nextQ = this.#queue
-			.then(() => console.log('*** transaction start', id))
+			//.then(() => console.log('*** transaction start', id))
 			// eslint-disable-next-line promise/prefer-await-to-callbacks, promise/no-callback-in-promise
 			.then(async () => cb(proxyBus))
-			.then(result => { console.log('*** transaction end', id); return result })
+			//.then(result => { console.log('*** transaction end', id); return result })
 
 		this.#queue = nextQ
 

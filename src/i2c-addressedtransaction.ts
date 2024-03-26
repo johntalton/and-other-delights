@@ -56,6 +56,6 @@ export class I2CAddressedTransactionBus extends I2CAddressedBus {
 
 	async transaction<T>(cb: AddressedTransactionCallback<T>): Promise<T> {
 		// eslint-disable-next-line promise/prefer-await-to-callbacks
-		return this.#bus.transaction((tbus: TransactionBusProxy) => cb(new AddressedTransactionBusProxy(tbus, this.address)))
+		return this.#bus.transaction(async (tbus: TransactionBusProxy) => cb(new AddressedTransactionBusProxy(tbus, this.address)))
 	}
 }

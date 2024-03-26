@@ -4,7 +4,7 @@
 /* eslint-disable no-loops/no-loops */
 /* eslint-disable fp/no-loops */
 /* eslint-disable immutable/no-let */
-import { I2CAddressedBus } from './i2c-addressed'
+import { I2CAddressedTransactionBus } from './i2c-addressedtransaction.js'
 
 export type Block = [number, number]
 export type BlockList = Array<Block>
@@ -50,7 +50,7 @@ export class BusUtil {
 	 * @returns A Promise the resolves to the read Buffer.
 	 *
 	 **/
-	static async readI2cBlocks(abus: I2CAddressedBus, blocks: BlockList, sourceBufferOrNull: UtilBufferSource | undefined = undefined): Promise<ArrayBuffer> {
+	static async readI2cBlocks(atbus: I2CAddressedTransactionBus, blocks: BlockList, sourceBufferOrNull: UtilBufferSource | undefined = undefined): Promise<ArrayBuffer> {
 		BusUtil.assertNormalBlock(blocks)
 
 		const totalLength = BusUtil.sourceDataLength(blocks)
@@ -60,16 +60,18 @@ export class BusUtil {
 			new Uint8Array(sourceBuffer.buffer, sourceBuffer.byteOffset, sourceBuffer.byteLength) :
 			new Uint8Array(sourceBuffer)
 
-		let cursor = 0
-		for (const block of blocks) {
-			const [reg, len] = block
-			try {
-				const abuffer = await abus.readI2cBlock(reg, len)
-				buffer.set(new Uint8Array(abuffer), cursor)
-				cursor += len
-			} catch (e) { console.warn({ e }); throw e }
-		}
-		return buffer.buffer
+		return atbus.transaction(async abus => {
+			let cursor = 0
+			for (const block of blocks) {
+				const [reg, len] = block
+				try {
+					const abuffer = await abus.readI2cBlock(reg, len)
+					buffer.set(new Uint8Array(abuffer), cursor)
+					cursor += len
+				} catch (e) { console.warn({ e }); throw e }
+			}
+			return buffer.buffer
+		})
 	}
 
 	/**
@@ -88,7 +90,7 @@ export class BusUtil {
 	 * this call over async interfaces will not always result as expected.
 	 **/
 	static writeI2cBlocks(
-		abus: I2CAddressedBus,
+		atbus: I2CAddressedTransactionBus,
 		blocks: BlockList,
 		sourceBuffer: UtilBufferSource): Promise<void> {
 
@@ -106,18 +108,20 @@ export class BusUtil {
 			throw new Error('max address is outside buffer length')
 		}
 
-		return Promise.all(blocks.map(([reg, len]) => {
-			return abus.writeI2cBlock(reg, buffer.subarray(reg, reg + len))
-				.then(() => len)
-		}))
-			.then(lengths => lengths.reduce((acc, item) => acc + item, 0))
-			.then(bytesWritten => {
-				if (bytesWritten !== totalLength) {
-					throw new Error('bytes written mismatch')
-				}
+		return atbus.transaction(async abus => {
+			return Promise.all(blocks.map(([reg, len]) => {
+				return abus.writeI2cBlock(reg, buffer.subarray(reg, reg + len))
+					.then(() => len)
+			}))
+				.then(lengths => lengths.reduce((acc, item) => acc + item, 0))
+				.then(bytesWritten => {
+					if (bytesWritten !== totalLength) {
+						throw new Error('bytes written mismatch')
+					}
 
-				return // eslint-disable-line no-useless-return
-			})
+					return // eslint-disable-line no-useless-return
+				})
+		})
 	}
 
 	/**

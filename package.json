@@ -1,6 +1,6 @@
 {
   "name": "@johntalton/and-other-delights",
-  "version": "6.2.0",
+  "version": "7.0.0",
   "description": "",
   "main": "src/aod.mjs",
   "exports": {
@@ -79,11 +79,11 @@
     "@types/chai": "^4.2.11",
     "@types/mocha": "^10.0.6",
     "@types/node": "^20.10.5",
-    "@typescript-eslint/eslint-plugin": "^6.15.0",
-    "@typescript-eslint/parser": "^6.15.0",
+    "@typescript-eslint/eslint-plugin": "^7.4.0",
+    "@typescript-eslint/parser": "^7.4.0",
     "auditjs": "^4.0.18",
-    "c8": "^8.0.1",
-    "chai": "^4.3.3",
+    "c8": "^9.1.0",
+    "chai": "^5.1.0",
     "eslint": "^8.22.0",
     "eslint-import-resolver-typescript": "^3.4.1",
     "eslint-plugin-fp": "^2.3.0",

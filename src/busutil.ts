@@ -50,7 +50,11 @@ export class BusUtil {
 	 * @returns A Promise the resolves to the read Buffer.
 	 *
 	 **/
-	static async readI2cBlocks(atbus: I2CAddressedTransactionBus, blocks: BlockList, sourceBufferOrNull: UtilBufferSource | undefined = undefined): Promise<ArrayBuffer> {
+	static async readI2cBlocks(
+		atBus: I2CAddressedTransactionBus,
+		blocks: BlockList, sourceBufferOrNull: UtilBufferSource | undefined = undefined
+	): Promise<ArrayBuffer> {
+
 		BusUtil.assertNormalBlock(blocks)
 
 		const totalLength = BusUtil.sourceDataLength(blocks)
@@ -60,13 +64,13 @@ export class BusUtil {
 			new Uint8Array(sourceBuffer.buffer, sourceBuffer.byteOffset, sourceBuffer.byteLength) :
 			new Uint8Array(sourceBuffer)
 
-		return atbus.transaction(async abus => {
+		return atBus.transaction(async aBus => {
 			let cursor = 0
 			for (const block of blocks) {
 				const [reg, len] = block
 				try {
-					const abuffer = await abus.readI2cBlock(reg, len)
-					buffer.set(new Uint8Array(abuffer), cursor)
+					const aBuffer = await aBus.readI2cBlock(reg, len)
+					buffer.set(new Uint8Array(aBuffer), cursor)
 					cursor += len
 				} catch (e) { console.warn({ e }); throw e }
 			}

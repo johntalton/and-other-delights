@@ -16,11 +16,17 @@ export class AddressedTransactionBusProxy implements _I2CAddressedBus {
 	get name(): string {
 		throw new Error('Method not implemented.')
 	}
+
 	close(): void {
 		throw new Error('Method not implemented.')
 	}
 
-	async readI2cBlock(cmd: number, length: number, _readBufferSource?: I2CBufferSource | undefined): Promise<ArrayBuffer> {
+	async readI2cBlock(
+		cmd: number,
+		length: number,
+		_readBufferSource?: I2CBufferSource | undefined
+	): Promise<ArrayBuffer> {
+
 		const { bytesRead, buffer } =  await this.#bus.readI2cBlock(this.#address, cmd, length)
 		return buffer.slice(0, bytesRead)
 	}

@@ -2,7 +2,7 @@
 A simple set of abstraction and helpers useful when working with I²C
 
 [![npm Version](https://img.shields.io/npm/v/@johntalton/and-other-delights.svg)](https://www.npmjs.com/package/@johntalton/and-other-delights)
-![GitHub package.json version](https://img.shields.io/github/package-json/v/johntalton/and-other-delights/and-other-delights)
+![GitHub package.json version](https://img.shields.io/github/package-json/v/johntalton/and-other-delights)
 [![CI](https://github.com/johntalton/and-other-delights/actions/workflows/CI.yml/badge.svg)](https://github.com/johntalton/and-other-delights/actions/workflows/CI.yml)
 ![CodeQL](https://github.com/johntalton/and-other-delights/workflows/CodeQL/badge.svg)
 ![GitHub](https://img.shields.io/github/license/johntalton/and-other-delights)

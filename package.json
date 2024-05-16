@@ -1,6 +1,6 @@
 {
   "name": "@johntalton/and-other-delights",
-  "version": "7.0.0",
+  "version": "7.0.1",
   "description": "",
   "main": "src/aod.mjs",
   "exports": {
@@ -9,6 +9,7 @@
   "type": "module",
   "files": [
     "src/aod.mjs",
+    "src/**/*.ts",
     "lib/**/*.js",
     "lib/**/*.d.ts",
     "lib/**/*.d.ts.map",

@@ -49,22 +49,30 @@ export class I2CAddressedBus implements _I2CAddressedBus {
 	private readonly bus: I2CBus
 	private readonly options: ABOptions
 
-	static from(bus: I2CBus, address: I2CAddress, options?: Partial<ABOptions>): I2CAddressedBus {
+	static from(bus: I2CBus, address: I2CAddress, options: Partial<ABOptions> = {}): I2CAddressedBus {
 		return new I2CAddressedBus(bus, address, options)
 	}
 
-	constructor(bus: I2CBus, address: I2CAddress, options: Partial<ABOptions> = DEFAULT_AB) {
+	constructor(bus: I2CBus, address: I2CAddress, {
+		sharedReadBuffer =  undefined,
+		allocOnRead =  true,
+		allowMixedReadBuffers = false,
+		maxReadLength = WARN_READ_LENGTH,
+		maxWriteLength =  WARN_WRITE_LENGTH,
+		validateReadWriteLengths =  true
+	}: Partial<ABOptions>) {
 		this.address = address
 		this.bus = bus
 
 		this.options = {
-			sharedReadBuffer: options.sharedReadBuffer ?? undefined,
-			allocOnRead: (options.allocOnRead ?? true) === true,
-			allowMixedReadBuffers: false,
-			maxReadLength: WARN_READ_LENGTH,
-			maxWriteLength: WARN_WRITE_LENGTH,
-			validateReadWriteLengths: true
-		}
+			...DEFAULT_AB,
+			sharedReadBuffer,
+			allocOnRead,
+			allowMixedReadBuffers,
+			maxReadLength,
+			maxWriteLength,
+			validateReadWriteLengths
+		 }
 	}
 
 	get name(): string {
@@ -92,7 +100,7 @@ export class I2CAddressedBus implements _I2CAddressedBus {
 	close(): void { return this.bus.close() }
 
 	async readI2cBlock(cmd: number, length: number, readBufferSource?: I2CBufferSource): Promise<ArrayBuffer> {
-		if (length > this.options.maxReadLength) {
+		if (this.options.validateReadWriteLengths && length > this.options.maxReadLength) {
 			throw new Error('read length greater then max configured')
 		}
 
@@ -111,7 +119,7 @@ export class I2CAddressedBus implements _I2CAddressedBus {
 	async writeI2cBlock(cmd: number, bufferSource: I2CBufferSource): Promise<void> {
 		assertBufferSource(bufferSource)
 
-		if (bufferSource.byteLength > this.options.maxWriteLength) {
+		if (this.options.validateReadWriteLengths && bufferSource.byteLength > this.options.maxWriteLength) {
 			throw new Error('write length greater then max configured')
 		}
 

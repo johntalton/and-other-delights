@@ -10,7 +10,6 @@
 
     "esModuleInterop": true,
     "isolatedModules": false,
-    "moduleResolution": "node",
 
     "skipLibCheck": true,
 

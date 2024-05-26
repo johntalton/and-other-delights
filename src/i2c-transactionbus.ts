@@ -28,7 +28,6 @@ export class I2CTransactionBus extends I2CProxyBus implements I2CBus {
 		super(bus)
 		this.#nextTransactionID = 0
 		this.#queue = Promise.resolve()
-		console.log('setup')
 	}
 
 	get name() { return `TransactionBus(${this.bus.name})` }

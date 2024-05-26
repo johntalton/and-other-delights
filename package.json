@@ -1,120 +1,24 @@
 {
   "name": "@johntalton/and-other-delights",
-  "version": "7.0.1",
-  "description": "",
-  "main": "src/aod.mjs",
+  "version": "8.0.0",
+  "license": "MIT",
+  "main": "./lib/index.js",
   "exports": {
-    "import": "./src/aod.mjs"
+    ".": "./lib/index.js"
   },
   "type": "module",
   "files": [
-    "src/aod.mjs",
     "src/**/*.ts",
     "lib/**/*.js",
     "lib/**/*.d.ts",
     "lib/**/*.d.ts.map",
     "lib/**/*.js.map"
   ],
-  "types": "lib/aod.d.ts",
   "scripts": {
-    "lint": "npm --silent run lint:ts",
-    "lint:ts": "./node_modules/.bin/eslint --ext .ts src/*.ts",
-    "Xlint:js": "./node_modules/.bin/eslint -c .eslintrc.js.json lib/*.js",
-    "format": "npm --silent run format:beauty && npm --silent run format:min",
-    "format:beauty": "js-beautify -jslint-happy --indent-size 2 --space-in-empty-paren ./lib/*.js",
-    "format:min": "terser lib/*.js --source-map --output aod.min.js --ecma 2020 --comments some --compress --mangle",
-    "format:x-standard": "./node_modules/.bin/standard -v --fix ./lib/*.js",
     "build": "tsc -p .",
-    "build:watch": "npm run build -- -w",
-    "test": "npm run test:mocha",
-    "test:mochaX": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }'  mocha",
-    "test:mocha": "mocha",
-    "coverage": "npm --silent run coverage:c8",
-    "coverage:nyc": "nyc npm run test:mocha -- --reporter min",
-    "coverage:c8": "c8 --check-coverage --reporter text --reporter lcov --all --lines 60 --functions 5 --branches 50 npm --silent run test:mocha -- --no-parallel --reporter min",
-    "audit": "auditjs ossi --dev",
-    "clean": "rm -r .nyc_output coverage lib node_modules package-lock.json aod.min.js aod.min.js.map"
-  },
-  "mocha": {
-    "spec": [
-      "test/*.spec.js"
-    ],
-    "grep": "@broken|@slow",
-    "invert": true,
-    "parallel": true,
-    "slow": 2,
-    "timeout": 31,
-    "watch": false,
-    "sort": false,
-    "forbitOnly": true,
-    "check-leaks": true,
-    "global": []
-  },
-  "nyc": {
-    "include": [
-      "src/*.ts"
-    ],
-    "branches": 30,
-    "lines": 50,
-    "extends": "@istanbuljs/nyc-config-typescript",
-    "all": true,
-    "check-coverage": true,
-    "require": [
-      "ts-node/register/transpile-only",
-      "source-map-support/register"
-    ],
-    "instrument": true,
-    "sourceMap": true,
-    "exclude-after-remap": false,
-    "produce-source-map": true,
-    "cache": false,
-    "reporter": [
-      "lcov",
-      "text",
-      "text-summary"
-    ]
+    "build:watch": "npm run build -- -w"
   },
   "devDependencies": {
-    "@istanbuljs/nyc-config-typescript": "^1.0.1",
-    "@johntalton/eslint-config": "github:johntalton/eslint-config",
-    "@types/chai": "^4.2.11",
-    "@types/mocha": "^10.0.6",
-    "@types/node": "^20.10.5",
-    "@typescript-eslint/eslint-plugin": "^7.4.0",
-    "@typescript-eslint/parser": "^7.4.0",
-    "auditjs": "^4.0.18",
-    "c8": "^9.1.0",
-    "chai": "^5.1.0",
-    "eslint": "^8.22.0",
-    "eslint-import-resolver-typescript": "^3.4.1",
-    "eslint-plugin-fp": "^2.3.0",
-    "eslint-plugin-functional": "^6.0.0",
-    "eslint-plugin-immutable": "^1.0.0",
-    "eslint-plugin-import": "^2.21.2",
-    "eslint-plugin-mocha": "^10.1.0",
-    "eslint-plugin-no-loops": "^0.3.0",
-    "eslint-plugin-no-use-extend-native": "^0.5.0",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^6.0.0",
-    "eslint-plugin-security": "^2.1.0",
-    "eslint-plugin-spellcheck": "^0.0.20",
-    "js-beautify": "^1.11.0",
-    "mocha": "^10.0.0",
-    "nyc": "^15.1.0",
-    "source-map-support": "^0.5.19",
-    "standard": "^17.0.0",
-    "terser": "^5.0.0",
-    "ts-node": "^10.0.0",
     "typescript": "^5.3.3"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/johntalton/and-other-delights.git"
-  },
-  "author": "johntalton@gmail.com",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/johntalton/and-other-delights/issues"
-  },
-  "homepage": "https://github.com/johntalton/and-other-delights#readme"
+  }
 }

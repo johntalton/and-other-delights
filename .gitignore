@@ -1,8 +1,4 @@
-npm-debug.log*
 node_modules/
 lib/
 lib/*.tsbuildinfo
-coverage/
-.nyc_output/
-aod.min.js*
 .DS_Store

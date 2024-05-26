@@ -2,38 +2,12 @@ name: CI
 on: push
 
 jobs:
-  Build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4.0.2
-      - run: npm install
-      - run: npm run build
-      - run: npm run format
-      - uses: actions/upload-artifact@v4
-        with:
-          name: lib
-          path: lib/
-      - uses: actions/upload-artifact@v4
-        with:
-          name: aod.min
-          path: aod.min*
   Test:
-    needs: Build
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        node-version: [16, 20]
-        os: [macos-latest, ubuntu-latest]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4.0.2
-        with:
-          node-version: ${{ matrix.node-version }}
-      - uses: actions/download-artifact@v4
-        with:
-          name: lib
-          path: lib
+      - uses: actions/setup-node@v4
       - run: npm install
+      - run: npm run build --if-exits
       - run: npm run lint --if-exists
+      - run: npm run test --if-exists
       - run: npm run coverage --if-exists

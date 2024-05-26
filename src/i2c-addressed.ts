@@ -54,13 +54,13 @@ export class I2CAddressedBus implements _I2CAddressedBus {
 	}
 
 	constructor(bus: I2CBus, address: I2CAddress, {
-		sharedReadBuffer =  undefined,
+		sharedReadBuffer = undefined,
 		allocOnRead =  true,
 		allowMixedReadBuffers = false,
 		maxReadLength = WARN_READ_LENGTH,
 		maxWriteLength =  WARN_WRITE_LENGTH,
 		validateReadWriteLengths =  true
-	}: Partial<ABOptions>) {
+	}: Partial<ABOptions> = {}) {
 		this.address = address
 		this.bus = bus
 

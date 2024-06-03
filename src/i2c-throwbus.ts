@@ -1,10 +1,3 @@
-/* eslint-disable fp/no-this */
-/* eslint-disable immutable/no-this */
-/* eslint-disable fp/no-throw */
-/* eslint-disable fp/no-mutation */
-/* eslint-disable immutable/no-mutation */
-/* eslint-disable fp/no-nil */
-/* eslint-disable fp/no-class */
 import { I2CAddress, I2CBufferSource, I2CBus, I2CReadResult, I2CWriteResult } from './i2c'
 
 export class ThrowBus implements I2CBus {

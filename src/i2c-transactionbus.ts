@@ -42,7 +42,7 @@ export class I2CTransactionBus extends I2CProxyBus implements I2CBus {
 			.then(async () => cb(proxyBus))
 			// .then(result => { console.log('*** transaction end', id); return result })
 
-		this.#queue = nextQ
+		this.#queue = nextQ.catch(_ => {})
 
 		return nextQ
 	}

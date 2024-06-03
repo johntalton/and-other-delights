@@ -1,4 +1,4 @@
-export type I2CBufferSource = ArrayBuffer | ArrayBufferView | SharedArrayBuffer
+export type I2CBufferSource = ArrayBufferLike | ArrayBufferView
 
 //
 export type I2CReadResult = {
@@ -30,6 +30,6 @@ export interface I2CBus extends Bus {
 		length: number,
 		bufferSource: I2CBufferSource): Promise<I2CWriteResult>
 
-	i2cRead(address: I2CAddress, length: number, bufferSource: I2CBufferSource): Promise<I2CReadResult>
+	i2cRead(address: I2CAddress, length: number, bufferSource?: I2CBufferSource): Promise<I2CReadResult>
 	i2cWrite(address: I2CAddress, length: number, bufferSource: I2CBufferSource): Promise<I2CWriteResult>
 }

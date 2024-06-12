@@ -15,13 +15,6 @@ export interface _I2CAddressedBus {
 	i2cWrite(bufferSource: I2CBufferSource): Promise<I2CWriteResult>
 }
 
-// const DEFAULT_READ_BUFFER = new ArrayBuffer(64)
-function defaultReadBuffer(length: number) {
-	// return undefined
-	return new ArrayBuffer(length)
-	// return DEFAULT_READ_BUFFER
-}
-
 function assertBufferSource(buffer: unknown): asserts buffer is I2CBufferSource {
 	if(ArrayBuffer.isView(buffer)) { return }
 	if(buffer instanceof ArrayBuffer) { return }
@@ -30,12 +23,15 @@ function assertBufferSource(buffer: unknown): asserts buffer is I2CBufferSource 
 	throw new Error('invalid buffer source')
 }
 
+const DEFAULT_READ_BUFFER_SIZE = 128
+
 /**
  * I2CBus layer providing address encapsulation.
  **/
 export class I2CAddressedBus implements _I2CAddressedBus {
 	readonly #address: I2CAddress
 	readonly #bus: I2CBus
+	#commonReadBuffer: ArrayBufferLike|undefined = new ArrayBuffer(DEFAULT_READ_BUFFER_SIZE)
 
 	static from(bus: I2CBus, address: I2CAddress): I2CAddressedBus {
 		return new I2CAddressedBus(bus, address)
@@ -52,10 +48,26 @@ export class I2CAddressedBus implements _I2CAddressedBus {
 
 	close(): void { return this.#bus.close() }
 
+	defaultReadBuffer(length: number) {
+		// return undefined
+		// return new ArrayBuffer(length)
+		if(length > DEFAULT_READ_BUFFER_SIZE) { throw new Error('read outside allocated buffer size') }
+		const offer =  this.#commonReadBuffer
+		this.#commonReadBuffer = undefined
+		return offer
+	}
+
+	salvageReadBuffer(buffer: I2CBufferSource) {
+		if(buffer.detached) { throw new Error(' what') }
+		this.#commonReadBuffer = ArrayBuffer.isView(buffer) ? buffer.buffer : buffer
+	}
+
+
 	async readI2cBlock(cmd: number, length: number, readBufferSource?: I2CBufferSource): Promise<ArrayBuffer> {
-		const readBuffer = readBufferSource ?? defaultReadBuffer(length)
+		const readBuffer = readBufferSource ?? this.defaultReadBuffer(length)
 		const { bytesRead, buffer } = await this.#bus.readI2cBlock(this.#address, cmd, length, readBuffer)
 		if(bytesRead !== length) { throw new Error('invalid length read') }
+		if(readBufferSource === undefined) { this.salvageReadBuffer(buffer) }
 
 		return buffer
 	}
@@ -71,9 +83,10 @@ export class I2CAddressedBus implements _I2CAddressedBus {
 	}
 
 	async i2cRead(length: number, readBufferSource?: I2CBufferSource): Promise<ArrayBuffer> {
-		const readBuffer = readBufferSource ?? defaultReadBuffer(length)
+		const readBuffer = readBufferSource ?? this.defaultReadBuffer(length)
 		const { bytesRead, buffer } = await this.#bus.i2cRead(this.#address, length, readBuffer)
 		if(bytesRead !== length) { throw new Error('invalid length read') }
+		if(readBufferSource === undefined) { this.salvageReadBuffer(buffer) }
 
 		return buffer
 	}

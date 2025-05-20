@@ -1,11 +1,11 @@
 /* eslint-disable max-classes-per-file */
-import { I2CAddress, I2CBufferSource, I2CBus, I2CReadResult, I2CWriteResult } from './i2c.js'
+import { I2CAddress, I2CBufferSource, I2CScannableBus, I2CBus, I2CReadResult, I2CWriteResult } from './i2c.js'
 import { I2CProxyBus } from './i2c-proxybus.js'
 
-export class TransactionBusProxy extends I2CProxyBus implements I2CBus {
+export class TransactionBusProxy extends I2CProxyBus implements I2CScannableBus {
 	#id: number
 
-	constructor(bus: I2CBus, id: number) {
+	constructor(bus: I2CBus|I2CScannableBus, id: number) {
 		super(bus)
 
 		this.#id = id
@@ -18,13 +18,13 @@ export class TransactionBusProxy extends I2CProxyBus implements I2CBus {
 
 export type TransactionCallback<T> = (bus: TransactionBusProxy) => Promise<T>
 
-export class I2CTransactionBus extends I2CProxyBus implements I2CBus {
+export class I2CTransactionBus extends I2CProxyBus implements I2CScannableBus {
 	#queue: Promise<unknown>
 	#nextTransactionID
 
-	static from(bus: I2CBus) { return new I2CTransactionBus(bus) }
+	static from(bus: I2CBus|I2CScannableBus) { return new I2CTransactionBus(bus) }
 
-	constructor(bus: I2CBus) {
+	constructor(bus: I2CBus|I2CScannableBus) {
 		super(bus)
 		this.#nextTransactionID = 0
 		this.#queue = Promise.resolve()
@@ -45,6 +45,10 @@ export class I2CTransactionBus extends I2CProxyBus implements I2CBus {
 		this.#queue = nextQ.catch(_ => {})
 
 		return nextQ
+	}
+
+	async scan(): Promise<number[]> {
+		return this.transaction(async bus => bus.scan())
 	}
 
 	async i2cRead(address: I2CAddress, length: number, bufferSource: I2CBufferSource): Promise<I2CReadResult> {

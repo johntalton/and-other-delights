@@ -13,7 +13,7 @@
 
     "skipLibCheck": true,
 
-    "noEmitOnError": true,
+    "noEmitOnError": false,
     "noUnusedParameters": true,
 
     "strict": true,

@@ -39,7 +39,7 @@ const DEFAULT_READ_BUFFER_SIZE = 128
 export class I2CAddressedBus implements _I2CAddressedBus {
 	readonly #address: I2CAddress
 	readonly #bus: I2CBus
-	#commonReadBuffer: ArrayBufferLike|undefined = new ArrayBuffer(DEFAULT_READ_BUFFER_SIZE)
+	#commonReadBuffer: ArrayBuffer|undefined = new ArrayBuffer(DEFAULT_READ_BUFFER_SIZE)
 
 	static from(bus: I2CBus, address: I2CAddress): I2CAddressedBus {
 		return new I2CAddressedBus(bus, address)

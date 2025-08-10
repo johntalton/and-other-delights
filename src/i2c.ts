@@ -1,4 +1,4 @@
-export type I2CBufferSource = ArrayBufferLike | ArrayBufferView
+export type I2CBufferSource = ArrayBuffer | ArrayBufferView
 
 //
 export type I2CReadResult = {

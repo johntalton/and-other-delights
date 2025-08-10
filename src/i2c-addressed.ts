@@ -2,15 +2,6 @@ import { I2CAddress, I2CBufferSource, I2CBus, I2CWriteResult } from './i2c.js'
 
 const BASE_16 = 16
 
-declare global {
-  interface ArrayBuffer {
-    detached: boolean
-  }
-	interface SharedArrayBuffer {
-    detached: boolean
-  }
-}
-
 export interface _I2CAddressedBus {
 	close(): void
 
@@ -39,7 +30,7 @@ const DEFAULT_READ_BUFFER_SIZE = 128
 export class I2CAddressedBus implements _I2CAddressedBus {
 	readonly #address: I2CAddress
 	readonly #bus: I2CBus
-	#commonReadBuffer: ArrayBufferLike|undefined = new ArrayBuffer(DEFAULT_READ_BUFFER_SIZE)
+	#commonReadBuffer: ArrayBuffer|undefined = new ArrayBuffer(DEFAULT_READ_BUFFER_SIZE)
 
 	static from(bus: I2CBus, address: I2CAddress): I2CAddressedBus {
 		return new I2CAddressedBus(bus, address)
@@ -66,8 +57,16 @@ export class I2CAddressedBus implements _I2CAddressedBus {
 	}
 
 	salvageReadBuffer(buffer: I2CBufferSource) {
-		if(ArrayBuffer.isView(buffer) ? buffer.buffer.detached : buffer.detached) { throw new Error('salvage attempt on detached buffer') }
-		this.#commonReadBuffer = ArrayBuffer.isView(buffer) ? buffer.buffer : buffer
+		if(ArrayBuffer.isView(buffer)) {
+			if(!(buffer.buffer instanceof ArrayBuffer)) { throw new Error('unable to salvage non-ArrayBuffer view') }
+			if(buffer.buffer.detached) { throw new Error('salvage attempt on detached buffer view')}
+			this.#commonReadBuffer = buffer.buffer
+			return
+		}
+
+		if(!(buffer instanceof ArrayBuffer)) { throw new Error('unable to salvage non-ArrayBuffer') }
+		if(buffer.detached) { throw new Error('salvage attempt on detached buffer')}
+		this.#commonReadBuffer = buffer
 	}
 
 	async readI2cBlock(cmd: number|[number, number], length: number, readBufferSource?: I2CBufferSource): Promise<I2CBufferSource> {

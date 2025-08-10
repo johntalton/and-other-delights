@@ -39,7 +39,7 @@ const DEFAULT_READ_BUFFER_SIZE = 128
 export class I2CAddressedBus implements _I2CAddressedBus {
 	readonly #address: I2CAddress
 	readonly #bus: I2CBus
-	#commonReadBuffer: ArrayBuffer|undefined = new ArrayBuffer(DEFAULT_READ_BUFFER_SIZE)
+	#commonReadBuffer: ArrayBufferLike|undefined = new ArrayBuffer(DEFAULT_READ_BUFFER_SIZE)
 
 	static from(bus: I2CBus, address: I2CAddress): I2CAddressedBus {
 		return new I2CAddressedBus(bus, address)
@@ -70,7 +70,7 @@ export class I2CAddressedBus implements _I2CAddressedBus {
 		this.#commonReadBuffer = ArrayBuffer.isView(buffer) ? buffer.buffer : buffer
 	}
 
-	async readI2cBlock(cmd: number, length: number, readBufferSource?: I2CBufferSource): Promise<I2CBufferSource> {
+	async readI2cBlock(cmd: number|[number, number], length: number, readBufferSource?: I2CBufferSource): Promise<I2CBufferSource> {
 		const readBuffer = readBufferSource ?? this.defaultReadBuffer(length)
 		const { bytesRead, buffer } = await this.#bus.readI2cBlock(this.#address, cmd, length, readBuffer)
 		if(bytesRead !== length) { throw new Error('invalid length read') }
@@ -78,7 +78,7 @@ export class I2CAddressedBus implements _I2CAddressedBus {
 		return buffer
 	}
 
-	async writeI2cBlock(cmd: number, bufferSource: I2CBufferSource): Promise<I2CWriteResult> {
+	async writeI2cBlock(cmd: number|[number, number], bufferSource: I2CBufferSource): Promise<I2CWriteResult> {
 		assertBufferSource(bufferSource)
 		return this.#bus.writeI2cBlock(this.#address, cmd, bufferSource.byteLength, bufferSource)
 	}

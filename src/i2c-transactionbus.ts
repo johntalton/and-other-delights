@@ -65,7 +65,7 @@ export class I2CTransactionBus extends I2CProxyBus implements I2CScannableBus {
 
 	async readI2cBlock(
 		address: I2CAddress,
-		cmd: number,
+		cmd: number|[number, number],
 		length: number,
 		bufferSource: I2CBufferSource): Promise<I2CReadResult> {
 		return this.transaction(async bus => bus.readI2cBlock(address, cmd, length, bufferSource))
@@ -73,7 +73,7 @@ export class I2CTransactionBus extends I2CProxyBus implements I2CScannableBus {
 
 	async writeI2cBlock(
 		address: I2CAddress,
-		cmd: number,
+		cmd: number|[number, number],
 		length: number,
 		bufferSource: I2CBufferSource): Promise<I2CWriteResult> {
 		return this.transaction(async bus => bus.writeI2cBlock(address, cmd, length, bufferSource))

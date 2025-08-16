@@ -19,3 +19,4 @@ updates:
       - "octocat"
     commit-message:
       prefix: "GitHub-Actions"
+      

@@ -13,12 +13,12 @@ export class I2CProxyBus implements I2CBus {
 	get name() { return `#${this.#bus.name}` }
 
 	get supportsScan() {
-		if(!Object.hasOwn(this.#bus, 'scan')) { return false }
-		return this.#bus.supportsScan
+		if('scan' in this.#bus) { return this.#bus.supportsScan }
+		return false
 	}
 	get supportsMultiByteDataAddress() {
-		if(!Object.hasOwn(this.#bus, 'supportsMultiByteDataAddress')) { return false }
-		return this.#bus.supportsMultiByteDataAddress
+		if('supportsMultiByteDataAddress' in this.#bus) { return this.#bus.supportsMultiByteDataAddress }
+		return false
 	}
 
 	scan(): Promise<number[]> {

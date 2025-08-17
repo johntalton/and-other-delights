@@ -12,8 +12,14 @@ export class I2CProxyBus implements I2CBus {
 	get bus() { return this.#bus }
 	get name() { return `#${this.#bus.name}` }
 
-	get supportsScan() { return Object.hasOwn(this.#bus, 'scan') }
-	get supportsMultiByteDataAddress() { return Object.hasOwn(this.#bus, 'supportsMultiByteDataAddress') }
+	get supportsScan() {
+		if(!Object.hasOwn(this.#bus, 'scan')) { return false }
+		return this.#bus.supportsScan
+	}
+	get supportsMultiByteDataAddress() {
+		if(!Object.hasOwn(this.#bus, 'supportsMultiByteDataAddress')) { return false }
+		return this.#bus.supportsMultiByteDataAddress
+	}
 
 	scan(): Promise<number[]> {
 		if(!('scan' in this.bus)) { throw new Error('bus does not implement scan method') }

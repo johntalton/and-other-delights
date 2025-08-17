@@ -1,4 +1,4 @@
-import { I2CAddress, I2CBufferSource, I2CBus, I2CWriteResult } from './i2c.js'
+import { I2CAddress, I2CBufferSource, I2CBus, I2CWriteResult, I2CCommand } from './i2c.js'
 
 const BASE_16 = 16
 
@@ -11,8 +11,8 @@ export const DEFAULT_OPTIONS: I2CAddressBusOptions = { reuse: true }
 export interface _I2CAddressedBus {
 	close(): void
 
-	readI2cBlock(cmd: number, length: number, readBufferSource?: I2CBufferSource): Promise<I2CBufferSource>
-	writeI2cBlock(cmd: number, bufferSource: I2CBufferSource): Promise<I2CWriteResult>
+	readI2cBlock(cmd: I2CCommand, length: number, readBufferSource?: I2CBufferSource): Promise<I2CBufferSource>
+	writeI2cBlock(cmd: I2CCommand, bufferSource: I2CBufferSource): Promise<I2CWriteResult>
 
 	sendByte(value: number): Promise<void>
 
@@ -84,7 +84,7 @@ export class I2CAddressedBus implements _I2CAddressedBus {
 		this.#commonReadBuffer = buffer
 	}
 
-	async readI2cBlock(cmd: number|[number, number], length: number, readBufferSource?: I2CBufferSource): Promise<I2CBufferSource> {
+	async readI2cBlock(cmd: I2CCommand, length: number, readBufferSource?: I2CBufferSource): Promise<I2CBufferSource> {
 		const readBuffer = readBufferSource ?? this.defaultReadBuffer(length)
 		const { bytesRead, buffer } = await this.#bus.readI2cBlock(this.#address, cmd, length, readBuffer)
 		if(bytesRead !== length) { throw new Error('invalid length read') }
@@ -92,7 +92,7 @@ export class I2CAddressedBus implements _I2CAddressedBus {
 		return buffer
 	}
 
-	async writeI2cBlock(cmd: number|[number, number], bufferSource: I2CBufferSource): Promise<I2CWriteResult> {
+	async writeI2cBlock(cmd: I2CCommand, bufferSource: I2CBufferSource): Promise<I2CWriteResult> {
 		assertBufferSource(bufferSource)
 		return this.#bus.writeI2cBlock(this.#address, cmd, bufferSource.byteLength, bufferSource)
 	}

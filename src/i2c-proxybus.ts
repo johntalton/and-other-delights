@@ -1,11 +1,19 @@
-import { I2CBufferSource, I2CBus, I2CReadResult, I2CScannableBus, I2CWriteResult } from './i2c.js'
+import {
+	I2CBufferSource,
+	I2CBus,
+	I2CReadResult,
+	I2CWriteResult
+} from './i2c.js'
 
-export class I2CProxyBus implements I2CScannableBus {
+export class I2CProxyBus implements I2CBus {
 	#bus
 
-	constructor(bus: I2CBus|I2CScannableBus) { this.#bus = bus }
+	constructor(bus: I2CBus) { this.#bus = bus }
 	get bus() { return this.#bus }
 	get name() { return `#${this.#bus.name}` }
+
+	get supportsScan() { return Object.hasOwn(this.#bus, 'scan') }
+	get supportsMultiByteDataAddress() { return Object.hasOwn(this.#bus, 'supportsMultiByteDataAddress') }
 
 	scan(): Promise<number[]> {
 		if(!('scan' in this.bus)) { throw new Error('bus does not implement scan method') }

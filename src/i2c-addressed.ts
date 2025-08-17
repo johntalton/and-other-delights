@@ -2,6 +2,12 @@ import { I2CAddress, I2CBufferSource, I2CBus, I2CWriteResult } from './i2c.js'
 
 const BASE_16 = 16
 
+export interface I2CAddressBusOptions {
+	readonly reuse: boolean
+}
+
+export const DEFAULT_OPTIONS: I2CAddressBusOptions = { reuse: true }
+
 export interface _I2CAddressedBus {
 	close(): void
 
@@ -30,24 +36,31 @@ const DEFAULT_READ_BUFFER_SIZE = 128
 export class I2CAddressedBus implements _I2CAddressedBus {
 	readonly #address: I2CAddress
 	readonly #bus: I2CBus
-	#commonReadBuffer: ArrayBuffer|undefined = new ArrayBuffer(DEFAULT_READ_BUFFER_SIZE)
+	readonly #options: I2CAddressBusOptions
+	#commonReadBuffer: ArrayBuffer|undefined
 
-	static from(bus: I2CBus, address: I2CAddress): I2CAddressedBus {
-		return new I2CAddressedBus(bus, address)
+	static from(bus: I2CBus, address: I2CAddress, options: I2CAddressBusOptions  = DEFAULT_OPTIONS): I2CAddressedBus {
+		return new I2CAddressedBus(bus, address, options)
 	}
 
-	constructor(bus: I2CBus, address: I2CAddress) {
+	constructor(bus: I2CBus, address: I2CAddress, options: I2CAddressBusOptions = DEFAULT_OPTIONS) {
 		this.#address = address
 		this.#bus = bus
+		this.#options = options
+
+		if(options.reuse) {
+			 this.#commonReadBuffer = new ArrayBuffer(DEFAULT_READ_BUFFER_SIZE)
+		}
 	}
 
 	get name(): string {
-		return this.#bus.name + ':0x' + this.#address.toString(BASE_16)
+		return this.#bus.name + ':0x' + this.#address.toString(BASE_16).toUpperCase().padStart(2, '0')
 	}
 
 	close(): void { return this.#bus.close() }
 
 	defaultReadBuffer(length: number) {
+		if(!this.#options.reuse) { return new ArrayBuffer(length) }
 		// return undefined
 		// return new ArrayBuffer(length)
 		if(length > DEFAULT_READ_BUFFER_SIZE) { throw new Error('read outside allocated buffer size') }
@@ -57,6 +70,8 @@ export class I2CAddressedBus implements _I2CAddressedBus {
 	}
 
 	salvageReadBuffer(buffer: I2CBufferSource) {
+		if(!this.#options.reuse) { return }
+
 		if(ArrayBuffer.isView(buffer)) {
 			if(!(buffer.buffer instanceof ArrayBuffer)) { throw new Error('unable to salvage non-ArrayBuffer view') }
 			if(buffer.buffer.detached) { throw new Error('salvage attempt on detached buffer view')}

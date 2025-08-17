@@ -1,19 +1,18 @@
-import { I2CAddress, I2CBufferSource, I2CReadResult, I2CScannableBus, I2CWriteResult } from './i2c'
+import { I2CAddress, I2CBufferSource, I2CReadResult, I2CBus, I2CWriteResult } from './i2c'
 
-export class ThrowBus implements I2CScannableBus {
+export class ThrowBus implements I2CBus {
 	private _name: string
 	private err: Error
 
-	static openPromisified(name: string): Promise<I2CScannableBus> {
-		return Promise.resolve(new ThrowBus(name))
-	}
+	get supportsScan(): boolean { return true }
+	get supportsMultiByteDataAddress(): boolean { return true }
 
 	constructor(name: string) {
 		this._name = name
 		this.err = new Error('throw bus ' + name)
 	}
 
-	get name(): string { return this._name }
+	get name(): string { return `Throw(${this._name})` }
 
 	scan(): Promise<number[]> { throw this.err }
 

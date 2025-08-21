@@ -6,7 +6,7 @@ export interface I2CAddressBusOptions {
 	readonly reuse: boolean
 }
 
-export const DEFAULT_OPTIONS: I2CAddressBusOptions = { reuse: true }
+export const DEFAULT_OPTIONS: I2CAddressBusOptions = { reuse: false }
 
 export interface _I2CAddressedBus {
 	close(): void

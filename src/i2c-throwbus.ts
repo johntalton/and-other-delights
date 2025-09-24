@@ -1,4 +1,4 @@
-import { I2CAddress, I2CBufferSource, I2CReadResult, I2CBus, I2CWriteResult } from './i2c'
+import { I2CAddress, I2CBufferSource, I2CReadResult, I2CBus, I2CWriteResult } from './i2c.js'
 
 export class ThrowBus implements I2CBus {
 	private _name: string

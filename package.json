@@ -20,5 +20,8 @@
   },
   "devDependencies": {
     "typescript": "^5.9.2"
+  },
+  "repository": {
+    "url": "https://github.com/johntalton/and-other-delights"
   }
 }

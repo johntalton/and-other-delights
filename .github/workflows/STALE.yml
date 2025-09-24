@@ -1,4 +1,9 @@
 name: Close Stale
+permissions:
+  actions: write
+  contents: read
+  issues: write
+  pull-requests: write
 on:
   schedule:
   - cron: "37 0 * * *"
@@ -7,12 +12,8 @@ jobs:
   stale:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/stale@v9
+    - uses: actions/stale@v10
       with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
         stale-issue-message: 'This issue is getting a bit stale... the robots will come for it soon unless un-staled or comment or magic'
         stale-issue-label: 'Stale'
-        exempt-issue-labels: 'Fresh'
-        exempt-pr-labels: 'Fresh'
         days-before-close: -1
-        operations-per-run: 10

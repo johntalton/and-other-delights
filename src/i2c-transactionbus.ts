@@ -11,7 +11,7 @@ export class TransactionBusProxy extends I2CProxyBus implements I2CBus {
 		this.#id = id
 	}
 
-	get name() {
+	override get name() {
 		return `TransactionBusProxy(${super.name}, ${this.#id})`
 	}
 }
@@ -30,7 +30,7 @@ export class I2CTransactionBus extends I2CProxyBus implements I2CBus {
 		this.#queue = Promise.resolve()
 	}
 
-	get name() { return `TransactionBus(${this.bus.name})` }
+	override get name() { return `TransactionBus(${this.bus.name})` }
 
 	async transaction<T>(cb: TransactionCallback<T>): Promise<T> {
 		// console.log('*** transaction created')
@@ -42,28 +42,28 @@ export class I2CTransactionBus extends I2CProxyBus implements I2CBus {
 			.then(async () => cb(proxyBus))
 			// .then(result => { console.log('*** transaction end', id); return result })
 
-		this.#queue = nextQ.catch(_ => {})
+		this.#queue = nextQ.catch(e => console.warn('exception in transaction queue', e))
 
 		return nextQ
 	}
 
-	async scan(): Promise<number[]> {
+	override async scan(): Promise<number[]> {
 		return this.transaction(async bus => bus.scan())
 	}
 
-	async i2cRead(address: I2CAddress, length: number, bufferSource: I2CBufferSource): Promise<I2CReadResult> {
+	override async i2cRead(address: I2CAddress, length: number, bufferSource: I2CBufferSource): Promise<I2CReadResult> {
 		return this.transaction(async bus => bus.i2cRead(address, length, bufferSource))
 	}
 
-	async i2cWrite(address: I2CAddress, length: number, bufferSource: I2CBufferSource): Promise<I2CWriteResult> {
+	override async i2cWrite(address: I2CAddress, length: number, bufferSource: I2CBufferSource): Promise<I2CWriteResult> {
 		return this.transaction(async bus => bus.i2cWrite(address, length, bufferSource))
 	}
 
-	async sendByte(address: I2CAddress, byteValue: number): Promise<void> {
+	override async sendByte(address: I2CAddress, byteValue: number): Promise<void> {
 		return this.transaction(async bus => bus.sendByte(address, byteValue))
 	}
 
-	async readI2cBlock(
+	override async readI2cBlock(
 		address: I2CAddress,
 		cmd: number|[number, number],
 		length: number,
@@ -71,7 +71,7 @@ export class I2CTransactionBus extends I2CProxyBus implements I2CBus {
 		return this.transaction(async bus => bus.readI2cBlock(address, cmd, length, bufferSource))
 	}
 
-	async writeI2cBlock(
+	override async writeI2cBlock(
 		address: I2CAddress,
 		cmd: number|[number, number],
 		length: number,

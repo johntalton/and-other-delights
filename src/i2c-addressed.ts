@@ -86,6 +86,11 @@ export class I2CAddressedBus implements _I2CAddressedBus {
 
 	async readI2cBlock(cmd: I2CCommand, length: number, readBufferSource?: I2CBufferSource): Promise<I2CBufferSource> {
 		const readBuffer = readBufferSource ?? this.defaultReadBuffer(length)
+
+		// if(readBuffer !== undefined && ArrayBuffer.isView(readBuffer) && readBuffer.buffer.detached) { throw new Error('detached') }
+		// if(readBuffer !== undefined && !ArrayBuffer.isView(readBuffer) && readBuffer.detached) { throw new Error('detached') }
+
+
 		const { bytesRead, buffer } = await this.#bus.readI2cBlock(this.#address, cmd, length, readBuffer)
 		if(bytesRead !== length) { throw new Error('invalid length read') }
 		if(readBufferSource === undefined) { this.salvageReadBuffer(buffer) }

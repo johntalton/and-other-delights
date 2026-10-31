@@ -1,7 +1,10 @@
-export * from './i2c-addressed.js'
-export * from './i2c-addressedtransaction.js'
-export * from './i2c-proxybus.js'
-export * from './i2c-soft16bus.js'
-export * from './i2c-throwbus.js'
-export * from './i2c-transactionbus.js'
-export * from './i2c.js'
+/** biome-ignore-all lint/performance/noReExportAll: barrel */
+/** biome-ignore-all lint/performance/noBarrelFile: barrel */
+export * from './i2c.ts'
+export * from './i2c-addressed.ts'
+export * from './i2c-addressedtransaction.ts'
+export * from './i2c-proxybus.ts'
+export * from './i2c-soft16bus.ts'
+export * from './i2c-throwbus.ts'
+export * from './i2c-transactionbus.ts'
+export * from './spi.ts'

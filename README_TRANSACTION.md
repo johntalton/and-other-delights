@@ -54,7 +54,7 @@ const incrementMode = bus => updateMode(bus, 1)
 const decrementMode = bus => updateMode(bus, -1)
 
 const hwbus = __hw('i2c')
-cosnt tbus = new I2CTransactionBus(hwbus)
+const tbus = new I2CTransactionBus(hwbus)
 const abus1 = new I2CAddressBus(tbus, ADDRESS_1)
 const abus2 = new I2CAddressBus(tbus, ADDRESS_2)
 
@@ -74,7 +74,7 @@ function updateMode(bus, offset) {
 
 
 const hwbus = __hw('i2c')
-cosnt tbus = new I2CTransactionBus(hwbus)
+const tbus = new I2CTransactionBus(hwbus)
 
 ...
 

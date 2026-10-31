@@ -1,10 +1,10 @@
 # And Other Delights
-A simple set of abstraction and helpers useful when working with I²C
+
+A simple set of abstraction and helpers useful when working with I²C and SPI bus interfaces.
 
 [![npm Version](https://img.shields.io/npm/v/@johntalton/and-other-delights.svg)](https://www.npmjs.com/package/@johntalton/and-other-delights)
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/johntalton/and-other-delights)
 [![CI](https://github.com/johntalton/and-other-delights/actions/workflows/CI.yml/badge.svg)](https://github.com/johntalton/and-other-delights/actions/workflows/CI.yml)
-![CodeQL](https://github.com/johntalton/and-other-delights/workflows/CodeQL/badge.svg)
 ![GitHub](https://img.shields.io/github/license/johntalton/and-other-delights)
 [![Downloads Per Month](https://img.shields.io/npm/dm/@johntalton/and-other-delights.svg)](https://www.npmjs.com/package/@johntalton/and-other-delights)
 ![GitHub last commit](https://img.shields.io/github/last-commit/johntalton/and-other-delights)
@@ -21,6 +21,7 @@ A simple set of abstraction and helpers useful when working with I²C
 
 This is the top level interface for `I2CBus` implementations.  There are several concert version that conform to this, and a wide range of other abstraction that can provided capabilities around it.
 
+- [FTDI 232H ](https://github.com/johntalton/ftdi) support
 - [MCP221](https://github.com/johntalton/i2c-bus-mcp2221) can provide I²C interface
 - The Excamera Labs I2CDriver also exposes a [`I2CBus`](https://github.com/johntalton/i2c-bus-excamera-i2cdriver)
 - NodeJS version based on `i2c-bus` [I2CBusFivdi](https://github.com/johntalton/i2c-bus-fivdi)

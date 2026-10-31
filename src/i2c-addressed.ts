@@ -1,6 +1,13 @@
-import { I2CAddress, I2CBufferSource, I2CBus, I2CWriteResult, I2CCommand } from './i2c.js'
+/** biome-ignore-all lint/style/useConsistentMethodSignatures: not pretty */
+import type {
+	I2CAddress,
+	I2CBufferSource,
+	I2CBus,
+	I2CCommand,
+	I2CWriteResult,
+} from './i2c.ts'
 
-const BASE_16 = 16
+export const BASE_16 = 16
 
 export interface I2CAddressBusOptions {
 	readonly reuse: boolean
@@ -20,7 +27,7 @@ export interface _I2CAddressedBus {
 	i2cWrite(bufferSource: I2CBufferSource): Promise<I2CWriteResult>
 }
 
-function assertBufferSource(buffer: unknown): asserts buffer is I2CBufferSource {
+export function assertBufferSource(buffer: unknown): asserts buffer is I2CBufferSource {
 	if(ArrayBuffer.isView(buffer)) { return }
 	if(buffer instanceof ArrayBuffer) { return }
 	// if(buffer instanceof SharedArrayBuffer) { return }
@@ -28,11 +35,11 @@ function assertBufferSource(buffer: unknown): asserts buffer is I2CBufferSource 
 	throw new Error('invalid buffer source')
 }
 
-const DEFAULT_READ_BUFFER_SIZE = 128
+export const DEFAULT_READ_BUFFER_SIZE = 128
 
 /**
  * I2CBus layer providing address encapsulation.
- **/
+ */
 export class I2CAddressedBus implements _I2CAddressedBus {
 	readonly #address: I2CAddress
 	readonly #bus: I2CBus
@@ -54,12 +61,14 @@ export class I2CAddressedBus implements _I2CAddressedBus {
 	}
 
 	get name(): string {
-		return this.#bus.name + ':0x' + this.#address.toString(BASE_16).toUpperCase().padStart(2, '0')
+		return `${this.#bus.name}:0x${this.#address.toString(BASE_16).toUpperCase().padStart(2, '0')}`
 	}
 
-	close(): void { return this.#bus.close() }
+	close(): void {
+		this.#bus.close()
+	}
 
-	defaultReadBuffer(length: number) {
+	defaultReadBuffer(length: number): ArrayBuffer | undefined {
 		if(!this.#options.reuse) { return new ArrayBuffer(length) }
 		// return undefined
 		// return new ArrayBuffer(length)
@@ -69,7 +78,7 @@ export class I2CAddressedBus implements _I2CAddressedBus {
 		return offer
 	}
 
-	salvageReadBuffer(buffer: I2CBufferSource) {
+	salvageReadBuffer(buffer: I2CBufferSource): void {
 		if(!this.#options.reuse) { return }
 
 		if(ArrayBuffer.isView(buffer)) {

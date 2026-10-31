@@ -1,13 +1,14 @@
+/** biome-ignore-all lint/style/useConsistentMethodSignatures: no pretty */
 export type I2CBufferSource = ArrayBufferLike | ArrayBufferView
 
 //
-export type I2CReadResult = {
+export interface I2CReadResult {
 	bytesRead: number
 	buffer: I2CBufferSource
 }
 
 //
-export type I2CWriteResult = {
+export interface I2CWriteResult {
 	bytesWritten: number
 	buffer: I2CBufferSource
 }
@@ -25,7 +26,7 @@ export interface I2CBus {
 
 	close(): void
 
-	scan(): Promise<Array<I2CAddress>>
+	scan(): Promise<I2CAddress[]>
 
 	sendByte(address: I2CAddress, byteValue: number): Promise<void>
 

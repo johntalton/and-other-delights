@@ -1,6 +1,6 @@
 {
   "name": "@johntalton/and-other-delights",
-  "version": "8.6.6",
+  "version": "8.6.7",
   "license": "MIT",
   "main": "./lib/index.js",
   "exports": {
@@ -15,11 +15,13 @@
     "lib/**/*.js.map"
   ],
   "scripts": {
+    "lint": "biome check",
     "build": "tsc -p .",
     "build:watch": "npm run build -- -w"
   },
   "devDependencies": {
-    "typescript": "^5.9.2"
+    "@biomejs/biome": "^2.6.4",
+    "typescript": "^7.0.2"
   },
   "repository": {
     "url": "https://github.com/johntalton/and-other-delights"

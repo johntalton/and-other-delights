@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "incremental": true,
+    "alwaysStrict": true,
 
     "target": "ESNext",
     "module": "ESNext",
@@ -9,6 +9,12 @@
     "noEmitOnError": false,
 
     "erasableSyntaxOnly": true,
+
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
 
     "strict": true,
     "allowUnreachableCode": false,
@@ -38,11 +44,12 @@
     "pretty": true,
     "sourceMap": true,
 
+    "rootDir": "./src",
     "outDir": "./lib"
   },
   "compileOnSave": true,
   "include": [
-      "src/*.ts"
+      "src/**/*.ts"
   ],
   "exclude": [
       "node_modules"

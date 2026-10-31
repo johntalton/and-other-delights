@@ -1,22 +1,22 @@
-import {
+import type {
 	I2CBufferSource,
 	I2CBus,
 	I2CReadResult,
 	I2CWriteResult
-} from './i2c.js'
+} from './i2c.ts'
 
 export class I2CProxyBus implements I2CBus {
-	#bus
+	readonly #bus
 
 	constructor(bus: I2CBus) { this.#bus = bus }
-	get bus() { return this.#bus }
-	get name() { return `#${this.#bus.name}` }
+	get bus(): I2CBus { return this.#bus }
+	get name(): string { return `#${this.#bus.name}` }
 
-	get supportsScan() {
+	get supportsScan(): boolean {
 		if('scan' in this.#bus) { return this.#bus.supportsScan }
 		return false
 	}
-	get supportsMultiByteDataAddress() {
+	get supportsMultiByteDataAddress(): boolean {
 		if('supportsMultiByteDataAddress' in this.#bus) { return this.#bus.supportsMultiByteDataAddress }
 		return false
 	}
@@ -33,7 +33,7 @@ export class I2CProxyBus implements I2CBus {
 		return this.bus.i2cWrite(address, length, bufferSource)
 	}
 	close(): void {
-		return this.bus.close()
+		this.bus.close()
 	}
 	sendByte(address: number, byteValue: number): Promise<void> {
 		return this.bus.sendByte(address, byteValue)

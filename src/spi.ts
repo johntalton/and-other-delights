@@ -1,7 +1,5 @@
 /** biome-ignore-all lint/style/useConsistentMethodSignatures: no pretty */
 
-
-
 // SPI MODE0 - data are captured on rising edge and propagated on falling edge
 // SPI MODE1 - data are captured on falling edge and propagated on rising edge
 // SPI MODE2 - data are captured on falling edge and propagated on rising edge
@@ -30,25 +28,16 @@ export interface SPIOptions {
 
 export type SPIBufferSource = ArrayBuffer|ArrayBufferView<ArrayBuffer>
 
-export interface SPITransaction {
-	sendBuffer?: SPIBufferSource
-	receiveBuffer?: SPIBufferSource
+export interface TransferRequest {
+	sendBuffer?: SPIBufferSource | undefined
 	receiveBufferLength: number
 }
-export interface TransferRequest {
-	writeBuffer?: ArrayBufferView<ArrayBuffer>
-	readLength?: number
-}
+
 export interface TransferResult {
-	bytesWritten?: number
-
-	byteRead?: number
-
-	readBuffer?: ArrayBufferView<ArrayBuffer>
-
-	writeBuffer?: ArrayBufferView<ArrayBuffer>
+	bytesWritten: number
+	readBuffer?: SPIBufferSource | undefined
 }
 
 export interface SPIBus {
-	transfer(transaction: SPITransaction): Promise<void>
+	transfer(request: TransferRequest, options?: SPIOptions): Promise<TransferResult>
 }

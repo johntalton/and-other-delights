@@ -10,10 +10,14 @@ import type {
 export const BASE_16 = 16
 
 export interface I2CAddressBusOptions {
+	readonly byob: boolean
 	readonly reuse: boolean
 }
 
-export const DEFAULT_OPTIONS: I2CAddressBusOptions = { reuse: false }
+export const DEFAULT_OPTIONS: I2CAddressBusOptions = {
+	byob: true,
+	reuse: false
+}
 
 export interface _I2CAddressedBus {
 	close(): void
@@ -46,7 +50,7 @@ export class I2CAddressedBus implements _I2CAddressedBus {
 	readonly #options: I2CAddressBusOptions
 	#commonReadBuffer: ArrayBuffer|undefined
 
-	static from(bus: I2CBus, address: I2CAddress, options: I2CAddressBusOptions  = DEFAULT_OPTIONS): I2CAddressedBus {
+	static from(bus: I2CBus, address: I2CAddress, options: I2CAddressBusOptions = DEFAULT_OPTIONS): I2CAddressedBus {
 		return new I2CAddressedBus(bus, address, options)
 	}
 
@@ -69,6 +73,7 @@ export class I2CAddressedBus implements _I2CAddressedBus {
 	}
 
 	defaultReadBuffer(length: number): ArrayBuffer | undefined {
+		if(!this.#options.byob) { return undefined }
 		if(!this.#options.reuse) { return new ArrayBuffer(length) }
 		// return undefined
 		// return new ArrayBuffer(length)

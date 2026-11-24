@@ -1,6 +1,6 @@
 {
   "name": "@johntalton/and-other-delights",
-  "version": "8.6.7",
+  "version": "8.6.8",
   "license": "MIT",
   "main": "./lib/index.js",
   "exports": {
@@ -20,7 +20,7 @@
     "build:watch": "npm run build -- -w"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.6.4",
+    "@biomejs/biome": "^2.6.9",
     "typescript": "^7.0.2"
   },
   "repository": {

@@ -50,14 +50,17 @@ export class I2CAddressedBus implements _I2CAddressedBus {
 	readonly #options: I2CAddressBusOptions
 	#commonReadBuffer: ArrayBuffer|undefined
 
-	static from(bus: I2CBus, address: I2CAddress, options: I2CAddressBusOptions = DEFAULT_OPTIONS): I2CAddressedBus {
+	static from(bus: I2CBus, address: I2CAddress, options: Partial<I2CAddressBusOptions> = DEFAULT_OPTIONS): I2CAddressedBus {
 		return new I2CAddressedBus(bus, address, options)
 	}
 
-	constructor(bus: I2CBus, address: I2CAddress, options: I2CAddressBusOptions = DEFAULT_OPTIONS) {
+	constructor(bus: I2CBus, address: I2CAddress, options: Partial<I2CAddressBusOptions> = DEFAULT_OPTIONS) {
 		this.#address = address
 		this.#bus = bus
-		this.#options = options
+		this.#options = {
+			byob: options.byob ?? DEFAULT_OPTIONS.byob,
+			reuse: options.reuse ?? DEFAULT_OPTIONS.reuse
+		}
 
 		if(options.reuse) {
 			 this.#commonReadBuffer = new ArrayBuffer(DEFAULT_READ_BUFFER_SIZE)

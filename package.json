@@ -1,6 +1,6 @@
 {
   "name": "@johntalton/and-other-delights",
-  "version": "8.6.8",
+  "version": "8.6.9",
   "license": "MIT",
   "main": "./lib/index.js",
   "exports": {
